@@ -83,10 +83,12 @@ class AppClass:
         print("------------------------------Results------------------------------")
         for target in self.targets:
             if target.isUsedLikeTarget:
-                print("Target:", target.name, "using like req:", target.countOfUses, "times")
+                pass
+      #          print("Target:", target.name, "using like req:", target.countOfUses, "times")
             else:
-                print("Target: (but wasn't described like target)", target.name, "using like req:", target.countOfUses,
-                      "times")
+                pass
+      #          print("Target: (but wasn't described like target)", target.name, "using like req:", target.countOfUses,
+       #               "times")
 
     def isReqUnique(self):
         if self.investigatedReq.count(self.buffer) == 0:
@@ -101,7 +103,7 @@ class AppClass:
     def addNewReq(self):
         if len(self.investigatedReq) > 0:
             self.investigatedReq.pop(0)
-            print(self.investigatedReq)
+        #    print(self.investigatedReq)
             isReqUnique = True
             for newRec in self.investigatedReq:
                 for target in self.targets:

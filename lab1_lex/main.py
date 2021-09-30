@@ -3,7 +3,6 @@
 # coding=utf8
 import ply.lex as lex
 import re
-import lexer
 import AppClass
 
 tokens = (
@@ -58,9 +57,9 @@ b9:3Z sc
             if not tok:
                 break      # закончились печеньки
             allTokens.append(tok)
-            print(tok)
+       #     print(tok)
         except Exception as error:
-            print("поймал ошибку лексер")
+      #      print("поймал ошибку лексер")
             allTokens.append(None)
 
     test = AppClass.AppClass()

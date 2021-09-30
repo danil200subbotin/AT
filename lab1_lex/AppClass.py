@@ -45,7 +45,7 @@ class AppClass:
         return 1
 
     def deleteTarget(self):
-        print("удалил цель")
+  #      print("удалил цель")
         for i in self.targets:
             if i.name == self.targetName:
                 i.isUsedLikeTarget = False
@@ -61,7 +61,7 @@ class AppClass:
                 #   print("------>", self.buffer)
                 if line.type == "EOS" and not errorIndicator:
                     self.addNewReq()
-                    print("100 normal string", line.value)
+                #    print("100 normal string", line.value)
                     self.investigatedReq.clear()
                     targetIndicator = False
                 if line.type == "EOS" and errorIndicator:
@@ -70,41 +70,41 @@ class AppClass:
                 if line.type == "TARGET" and not targetIndicator:
                     if self.isTargetUnique():
                         self.addTarget()
-                        print("1", line.value)
+            #            print("1", line.value)
                         targetIndicator = True
                         awaitedForColon = True
                     else:
                         errorIndicator = True
                         self.deleteTarget()
                         self.buffer = None
-                        print("2", line.value)
+             #           print("2", line.value)
                         self.investigatedReq.clear()
                 if line.type == "COLON":
                     if awaitedForColon:
-                        print("3", line.value)
+              #          print("3", line.value)
                         awaitedForColon = False
                     else:
                         errorIndicator = True
                         self.deleteTarget()
-                        print("4", line.value)
+               #         print("4", line.value)
                         self.buffer = None
                         self.investigatedReq.clear()
                 if line.type == "SPACE":
-                    print("5", line.value)
+               #     print("5", line.value)
                     if awaitedForColon:
                         errorIndicator = True
                         awaitedForColon = False
-                        print("6", line.value)
+                #        print("6", line.value)
                         self.deleteTarget()
                         self.buffer = None
                         self.investigatedReq.clear()
                 if line.type == "TARGET" and targetIndicator and self.isReqUnique() and not awaitedForColon:
-                    print("7", self.buffer)
+               #     print("7", self.buffer)
                     self.investigatedReq.append(self.buffer)
                 elif not awaitedForColon and line.type == "TARGET":
                     errorIndicator = True
                     self.deleteTarget()
-                    print("8", line.value)
+               #     print("8", line.value)
                     self.buffer = None
                     self.investigatedReq.clear()
             else:
@@ -148,7 +148,7 @@ class AppClass:
     def addNewReq(self):
         if len(self.investigatedReq) > 0:
             self.investigatedReq.pop(0)
-            print(self.investigatedReq)
+       #     print(self.investigatedReq)
             isReqUnique = True
             for newRec in self.investigatedReq:
                 for target in self.targets:

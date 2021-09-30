@@ -28,11 +28,11 @@ g = open('automatic.txt', 'w')
 
 a = time.perf_counter()
 
-for i in range(1, 20000):
+for i in range(1, 1000):
     for n in range(1, random.randint(1, 5)):
         g.write(random.choice(symbols))
     g.write(':')
-    for n in range(1, 5):
+    for n in range(1, 500):
         for p in range(1, random.randint(1, 5)):
             g.write(random.choice(symbols))
         g.write(' ')
