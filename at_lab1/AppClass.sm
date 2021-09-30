@@ -1,0 +1,75 @@
+//SMC code
+
+%start Map1::Start
+%class AppClass
+
+%map Map1
+%%
+Start {
+                Space        Start          {}
+                EOS          Start          {stringIsNotCorrect();}
+				Lett         Target			{addToBuff();}
+				Sep          Target			{addToBuff();}
+				Dig          Error          {}
+				Colon        Error          {}
+				Unknown      Error			{}
+}
+
+Target {
+                Space           Error           {clearBuff();}
+                EOS             Error           {clearBuff(); stringIsNotCorrect();}
+                Lett            Target          {addToBuff();}
+                Sep             Target          {addToBuff();}
+                Dig             Target          {addToBuff();}
+                Colon[ctxt.isTargetUnique()]           Req1            {addTarget(); clearBuff();}
+                Colon           Error           {deleteTarget(); clearBuff();}
+				Unknown			Error			{}
+}
+
+Req1 {
+				Space			Req1			{}
+				EOS			    Start			{clearBuff(); clearReq(); addNewReq(); stringIsCorrect();}
+				EOF             Start           {addNewReq(); clearBuff(); clearReq(); makeStatistic(); stringIsCorrect();}
+				Lett            Req2			{addToBuff();}
+				Sep             Req2			{addToBuff();}
+				Dig             Error           {deleteTarget();}
+				Colon           Error           {deleteTarget(); clearBuff();}
+				Unknown			Error			{deleteTarget();}
+
+}
+Req2 {
+                Space[ctxt.isReqUnique()]			Req1			{clearBuff();}
+                Space		    Error			{deleteTarget(); clearBuff();}
+                EOS[ctxt.isReqUnique()]			Start			{addNewReq(); clearBuff(); clearReq(); stringIsCorrect();}
+                EOS                             Start           {deleteTarget(); clearBuff(); clearReq(); stringIsNotCorrect();}
+                EOF[ctxt.isReqUnique()]         Start           {addNewReq(); clearBuff(); clearReq(); makeStatistic(); stringIsCorrect();}
+                EOF                             Start           {deleteTarget(); clearBuff(); clearReq(); stringIsNotCorrect();}
+                Lett            Req2          {addToBuff();}
+                Sep             Req2          {addToBuff();}
+                Dig             Req2          {addToBuff();}
+                Colon           Error         {deleteTarget(); clearBuff();}
+                Unknown			Error		  {deleteTarget(); clearBuff();}
+}
+
+
+Error
+Entry                                          {whyImHere(); clearReq();}
+{
+                Colon           Error          {}
+                Lett            Error          {}
+                Sep             Error          {}
+                Dig             Error          {}
+                Space           Error          {}
+				EOS				Start		   {clearBuff(); stringIsNotCorrect();}
+				Unknown         Error          {}
+}
+
+EOF
+{}
+
+Default {
+                EOF             EOF                {makeStatistic();}
+
+}
+
+%%
