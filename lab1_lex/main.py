@@ -66,6 +66,7 @@ b9:3Z sc
     test.CheckFile(allTokens)
    # print(allTokens[0].lineno)
 
+    print(chr(80))
 
 
 

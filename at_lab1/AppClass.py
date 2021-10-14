@@ -36,12 +36,12 @@ class AppClass:
 
     def stringIsNotCorrect(self):
         self.isStringCorrect = False
-   #     print("String", self.stringNumber, "is NOT correct!")
+        print("String", self.stringNumber, "is NOT correct!")
         self.stringNumber += 1
 
     def stringIsCorrect(self):
         self.isStringCorrect = True
-    #    print("String", self.stringNumber, "is correct!")
+        print("String", self.stringNumber, "is correct!")
         self.stringNumber += 1
 
     def addToBuff(self):
@@ -102,15 +102,13 @@ class AppClass:
         return True
 
     def makeStatistic(self):
-   #     print("------------------------------Results------------------------------")
+        print("------------------------------Results------------------------------")
         for target in self.targets:
             if target.isUsedLikeTarget:
-                x = 1
-   #             print("Target:", target.name, "using like req:", target.countOfUses, "times")
+                print("Target:", target.name, "using like req:", target.countOfUses, "times")
             else:
-                x = 1
-    #            print("Target: (but wasn't described like target)", target.name, "using like req:", target.countOfUses,
-    #                  "times")
+                print("Target: (but wasn't described like target)", target.name, "using like req:", target.countOfUses,
+                     "times")
 
     def isReqUnique(self):
         if self.investigatedReq.count(self.buffer) == 0:
@@ -123,9 +121,10 @@ class AppClass:
         self.investigatedReq.clear()
 
     def addNewReq(self):
+     #   print(self.investigatedReq)
         if len(self.investigatedReq) > 0:
             self.investigatedReq.pop(0)
-      #      print(self.investigatedReq)
+   #         print('<<<<<<<<<<<<<<<<<<<<vbyieowg y8vobfiwo bv>>>>>>>>>>>>>>>>>>>>', self.investigatedReq)
             isReqUnique = True
             for newRec in self.investigatedReq:
                 for target in self.targets:

@@ -229,9 +229,9 @@ class Map1_Req1(Map1_Default):
         fsm.getState().Exit(fsm)
         fsm.clearState()
         try:
+            ctxt.addNewReq()
             ctxt.clearBuff()
             ctxt.clearReq()
-            ctxt.addNewReq()
             ctxt.stringIsCorrect()
         finally:
             fsm.setState(Map1.Start)

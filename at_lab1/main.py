@@ -4,6 +4,7 @@
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings
 import random
 import time
+import exrex
 import AppClass
 
 
@@ -24,20 +25,39 @@ symbols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
 
 #include <stdio.h>
 
+#print(exrex.getone('[A-Za-z1-9]{,15}'))
+
+print(ord('N'))
+print(ord('\n'))
+print(ord('o'))
+
+
 g = open('automatic.txt', 'w')
 
 a = time.perf_counter()
 
-for i in range(1, 1000):
+rString = ''
+
+for i in range(1, 1000):                  #количество строк
+    rString = exrex.getone('[A-Za-z1-9]{,15}[:]')
+    for j in range(1, 7):                  #количество слов в строке
+        rString += exrex.getone('[  ]{,5}[A-Za-z1-9]{,3}')
+    rString += '\n'
+   # print(rString)
+    g.write(rString)
+
+
+'''
+for i in range(1, 20):
     for n in range(1, random.randint(1, 5)):
         g.write(random.choice(symbols))
     g.write(':')
-    for n in range(1, 500):
+    for n in range(1, 7):
         for p in range(1, random.randint(1, 5)):
             g.write(random.choice(symbols))
         g.write(' ')
     g.write('\n')
-
+'''
 g.close()
 
 b = time.perf_counter()

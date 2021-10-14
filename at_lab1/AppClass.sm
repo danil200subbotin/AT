@@ -28,7 +28,7 @@ Target {
 
 Req1 {
 				Space			Req1			{}
-				EOS			    Start			{clearBuff(); clearReq(); addNewReq(); stringIsCorrect();}
+				EOS			    Start			{addNewReq(); clearBuff(); clearReq(); stringIsCorrect();}
 				EOF             Start           {addNewReq(); clearBuff(); clearReq(); makeStatistic(); stringIsCorrect();}
 				Lett            Req2			{addToBuff();}
 				Sep             Req2			{addToBuff();}
