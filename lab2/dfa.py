@@ -1,99 +1,96 @@
 
-
-#self.statements будет хранить список списков NFAnodes
+# self.statements будет хранить список списков NFAnodes
 
 class DFAnode:
     def __init__(self, statement=list()):
         self.statement = statement
         self.transitList = list()
         self.isItFinish = False
-        self.mDFAid = 0
+        self.isHereRegular = False
+        self.mDFAid = -1
 
 
 class DFA:
     def __init__(self):
         self.start = None
-        self.finish = None
         self.DFAnodes = list()
-        self.isEmptyStateHere = False
+        self.isEmptyStateHere = True
+        self.emptyState = DFAnode(None)
+        self.finishNodesForSub = list()
+        self.indexForSub = -1
+
+
+    #    print("вот координата нуля:", id(self.emptyState) % 1000)
 
     def addStateIfUnique(self, NewNode=None):
-        if NewNode.statement is None:
-            print("добавил пустое состояние в ДКА")
-            if self.isEmptyStateHere:
-                for node in self.DFAnodes:
-                    if node.statement is None:
-                        return node
-            else:
-                self.isEmptyStateHere = True
-                newNode = DFAnode(None)
-                self.DFAnodes.append(newNode)
-                return newNode
-        searchIndicator = True
-        currentStateFindIndicator = False
         state = NewNode.statement
+        if state is None:
+            return self.emptyState
+
+        isDiffWithCurrState = False
+
         for node in self.DFAnodes:
             oldState = node.statement
             if len(state) != len(oldState):
+      #          print("длины не равны, даже сравнивать не буду")
                 continue
             for newT in state:
-                for oldT in oldState:
-                    if id(newT) == id(oldT):
-                        currentStateFindIndicator = True
-                searchIndicator = searchIndicator * currentStateFindIndicator
-                currentStateFindIndicator = False
-                if not searchIndicator:
-                    print("сравнил с одним состоянием - не подошло")
+                if newT not in oldState:
+                    isDiffWithCurrState = True
                     break
-            if searchIndicator:
-                print("нашел совпадающее состояние")
+            if not isDiffWithCurrState:
+     #           print("нашел такое же состояние")
                 return node
-        print("Состояние уникально, добавляю его")
+     #   print("!!!!!!!!Состояние уникально, добавляю его")
         self.DFAnodes.append(NewNode)
+      #  print("Вот такое это состояние:")
+        for iterator in NewNode.statement:
+            print(iterator.name)
         return NewNode
 
     def findEpsilonClosure(self, node=None):
+        if node.statement is None:
+        #    print("Заставили искать Эпсилон замыкание для пустоты :(")
+            return self.emptyState
         state = node.statement
-        print("-------", type(state))
-        if state is None:
-            print("Заставили искать Эпсилон замыкание для пустоты :(")
-            return None
-        newState = state
-        #T - состояние, t - ребенок состояния (тоже состояние)
+        newState = list(state)
+        # T - состояние(исходного НКА), t - ребенок состояния (тоже состояние)
         for T in newState:
             if T.colour == 1:
                 continue
             T.colour = 1
             for trans in T.transitList:
-                if "$" in trans.liters:
+                if "$" in trans.liters and trans.target.colour == 0:
+       #             print("Дополнил замыкание вершинкой")
                     newState.append(trans.target)
-        for T in newState:
-            T.colour = 0
+        # for T in newState:
+        #     T.colour = 0
         newNode = DFAnode(newState)
+     #   print("добавил в Z-замыкании:", len(newState) - len(state), "вершин исходного НКА")
         return newNode
 
     def findAnyLiterClosure(self, liter, node=None):
         state = node.statement
         if state is None:
-            print("Заставили искать Эпсилон замыкание для пустоты :(")
-            return None
-        newState = state
-        #T - состояние
+         #   print("Заставили искать замыкание <", liter, ">для пустоты :(")
+            return self.emptyState
+        newState = list(state)
+        # T - состояние (исходного НКА)
         for T in newState:
             if T.colour == 1:
                 continue
             T.colour = 1
             for trans in T.transitList:
                 if liter in trans.liters:
-                    print("нашел переход по вот такой букве:", liter)
+    #                print("нашел переход по вот такой букве:", liter)
+                    if trans.target in newState:
+                        print("вот таперь пора решать эту проблему")
                     newState.append(trans.target)
         for T in newState:
             T.colour = 0
         for T in state:
-            newState.remove(T)  #удаляю из замыкания изначальные состояния
+            newState.remove(T)  # удаляю из замыкания изначальные состояния
+        if len(newState) == 0:
+            return self.emptyState
         newNode = DFAnode(newState)
         return newNode
-
-
-
-
