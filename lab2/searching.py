@@ -32,7 +32,10 @@ class searchClass:
                 if self.isFinishHere():
                     print("=======================Найдена подстрока, удовлетворяющая РВ:", "=======================", end=" ")
                     print(self.currentString[:index + 1])
-                    self.drawGraph()
+                    found = relibrary.Group(self.currentString[:index + 1])
+                    found.processed = self.currentString[:index + 1]
+                    self.regLib.groups[0] = found
+                    #self.drawGraph()
                     return self.currentString[:index + 1]
                 if len(self.currentStatements) == 0:
                     break
@@ -64,7 +67,7 @@ class searchClass:
         return 0
 
     def makeNewStatementsForLetter(self, letter):
-        print("Ищу переходы для", letter)
+        #print("Ищу переходы для", letter)
         states = self.currentStatements
         newState = list()
         for graphState in states:
@@ -72,7 +75,7 @@ class searchClass:
                 if letter in trans.liters:
                     if trans.groupIndex is not None:
                         self.regLib.groups[trans.groupIndex].processed += letter
-                    print("Нашел переход по букве", letter)
+                    #print("Нашел переход по букве", letter)
                     newState.append(trans.target)
         self.currentStatements = newState
 
@@ -90,8 +93,8 @@ class searchClass:
 
 
     def renderNewSubGraph(self, graphState, trans, transIndex):
-        print("\n+++создаю подграф для регулярки из группы:", trans.groupIndex)
-        print("+++вот для такой регулярки:", self.regLib.groups[trans.groupIndex].regular)
+        #print("\n+++создаю подграф для регулярки из группы:", trans.groupIndex)
+        #print("+++вот для такой регулярки:", self.regLib.groups[trans.groupIndex].regular)
         newLibGraph = relibrary.MyRegLib(self.regLib.groups[trans.groupIndex].regular, self.regLib.language, trans.groupIndex)
         newLibGraph.compile()
         newGraph = newLibGraph.NFAgraph
@@ -109,7 +112,7 @@ class searchClass:
 
         #newLibGraph.draw()
 
-        print("добавил подграф для регулярки", trans.groupIndex)
+        #print("добавил подграф для регулярки", trans.groupIndex)
 
     def drawGraph(self):
         nfa = self.graph
@@ -143,7 +146,7 @@ class searchClass:
                     childName = "finish"
                 self.drawSubGraph(trans.target, start, finish)
                 edgeName = "-" + trans.liters[0] + "-" + str(id(trans) % 100)
-                print("НОМЕР ГРУППЫ В ПЕРЕХОДЕ:", trans.groupIndex)
+                #print("НОМЕР ГРУППЫ В ПЕРЕХОДЕ:", trans.groupIndex)
                 self.graphDrawing.add_node(edgeName)
                 self.graphDrawing.add_edge(nodeName, edgeName)
                 self.graphDrawing.add_edge(edgeName, childName)

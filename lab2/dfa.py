@@ -6,8 +6,18 @@ class DFAnode:
         self.statement = statement
         self.transitList = list()
         self.isItFinish = False
+        self.isItStart = False
         self.isHereRegular = False
         self.mDFAid = -1
+
+"""class mDFA:
+    def __init__(self, DFA):
+        self.pi = list()
+        self.DFA = DFA
+        self.start = None
+        self.dfaStart = DFA.start
+        self.allDFAnodes = DFA.DFAnodes     #тут возможно нужно юзать list()
+        self.wasNewSubdLastTime = True"""
 
 
 class DFA:
@@ -43,6 +53,7 @@ class DFA:
                 return node
      #   print("!!!!!!!!Состояние уникально, добавляю его")
         self.DFAnodes.append(NewNode)
+        print("Ну вот здесь добавил нод в ДКА")
       #  print("Вот такое это состояние:")
         for iterator in NewNode.statement:
             print(iterator.name)
@@ -63,8 +74,6 @@ class DFA:
                 if "$" in trans.liters and trans.target.colour == 0:
        #             print("Дополнил замыкание вершинкой")
                     newState.append(trans.target)
-        # for T in newState:
-        #     T.colour = 0
         newNode = DFAnode(newState)
      #   print("добавил в Z-замыкании:", len(newState) - len(state), "вершин исходного НКА")
         return newNode
@@ -72,7 +81,6 @@ class DFA:
     def findAnyLiterClosure(self, liter, node=None):
         state = node.statement
         if state is None:
-         #   print("Заставили искать замыкание <", liter, ">для пустоты :(")
             return self.emptyState
         newState = list(state)
         # T - состояние (исходного НКА)
@@ -82,7 +90,6 @@ class DFA:
             T.colour = 1
             for trans in T.transitList:
                 if liter in trans.liters:
-    #                print("нашел переход по вот такой букве:", liter)
                     if trans.target in newState:
                         print("вот таперь пора решать эту проблему")
                     newState.append(trans.target)

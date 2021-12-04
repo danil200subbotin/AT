@@ -22,7 +22,7 @@ class mDFA:
 
 
     def isThereStartsAndEnds(self):
-        iter =  0
+        iter = 0
         for dfaNode in self.allDFAnodes:
             if dfaNode.isItFinish:
                 iter += 1

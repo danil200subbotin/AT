@@ -12,33 +12,52 @@ printableSymbols = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 
                     'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
                     'U', 'V', 'W', 'X', 'Y', 'Z', '!', '#', '%', '&', "'", '(', ')', '*',
                     '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\',
-                    ']', '^', '_', '`', '{', '|', '}', '~', ' ', '\t', '\n', '\r', '\x0b', '\x0c']
+                    ']', '^', '_', '`', '{', '}', '~']
 
 printableSymbols = string.printable
 # chunks = [string.printable[i:i+1] for i in range(0, len(string.printable), 1)]
 
-reg = relibrary.MyRegLib("12345", printableSymbols)
-
-reg.compile()
-
-reg.search("53521")
-
-# print("\n\n\n")
+# reg = relibrary.MyRegLib("(mep)(hi)", printableSymbols)
+#
+# reg.compile()
+#
+#
+#
 # for index, group in enumerate(reg.groups):
 #     print(reg.giveStringFromGroup(index))
+#
+# reg.regexRecovery()
+#
+# print(reg.reverseRegString)
+#
+# reg2 = relibrary.MyRegLib(reg.reverseRegString, printableSymbols)
+# reg2.compile()
+#
+# print(reg.reverseRegString)
+# print(reg2.reverseRegString)
+#
+#
+#
+#
+# reg.search("mephihimep")
+#
+# reg.printSearchingResults()
+# #reg.draw()
 
-reg.regexRecovery()
-
-print(reg.reverseRegString)
-
-reg2 = relibrary.MyRegLib(reg.reverseRegString, printableSymbols)
-reg2.compile()
-
-print(reg.reverseRegString)
-print(reg2.reverseRegString)
+subReg1 = relibrary.MyRegLib("12|345", printableSymbols)
+subReg2 = relibrary.MyRegLib("lar1", printableSymbols)
+subReg2.compile()
+subReg1.compile()
+#subReg1.draw()
 
 
-#reg.draw()
+#subReg1 - subReg2
+print("Начал восстановление")
+subReg1.regexRecovery()
+print("закончил восстановление")
+
 
 # reg.makeMDFAfromDFA()
 # reg.drawMinDFA()
+
+

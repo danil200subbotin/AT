@@ -22,8 +22,8 @@ class Node:
 
 
 class Group:
-    def __init__(self):
-        self.regular = ""
+    def __init__(self, regular=""):
+        self.regular = regular
         self.processed = ""
         self.graphStart = None
         self.isFull = False
@@ -73,6 +73,7 @@ class MyRegLib:
         self.mdfaDrawing = None
         self.drawCheckList = list()
         self.dekart = None
+        self.groups.append(Group())
 
     def __sub__(self, other):
         #ну вот и настало время написать разность
@@ -82,6 +83,7 @@ class MyRegLib:
             for indexRight, nodeRight in enumerate(other.DFAgraph.DFAnodes):
                 newNode = dfa.DFAnode(statement=list([indexLeft, indexRight]))
                 if nodeLeft.isItFinish and not nodeRight.isItFinish:
+                    print("www", "Нашел финиш в разности")
                     newNode.isItFinish = True
                 if nodeLeft == self.DFAgraph.start and nodeRight == other.DFAgraph.start:
                     self.dekart.start = newNode
@@ -207,7 +209,7 @@ class MyRegLib:
                     self.nodes[index].information = 1
                     self.nodes.pop(index - 1)
                     second -= 1
-                    print("after ...  $", end="")
+                    #print("after ...  $", end="")
                     self.printListOfNodes()
             #print("index =", first, ",", second)
 
@@ -240,7 +242,7 @@ class MyRegLib:
                             currentNode.children[1] = Node("|")
                             currentNode = currentNode.children[1]
                     self.nodes[index].name = "[|]"
-                    print("after [  $", end="")
+                    #print("after [  $", end="")
                     self.printListOfNodes()
 
         for index in range(first, second + 1):
@@ -287,9 +289,9 @@ class MyRegLib:
                     #self.nodes[index].children.append(self.nodes[index - 1])
                     self.nodes.pop(index - 1)
                     second -= 1
-                    print("after {  $", end="")
+                    #print("after {  $", end="")
                     self.printListOfNodes()
-                    print("index = (", first, ",", second, ")")
+                    #print("index = (", first, ",", second, ")")
 
         for index in range(first, second):
             indicator = True
@@ -314,7 +316,7 @@ class MyRegLib:
                 else:
          # print("---->" ,"sci =", secondConcanIndex, "s =", second)
                     break
-            print("after *  $", end="")
+            #print("after *  $", end="")
             self.printListOfNodes()
 
         diff = 0
@@ -330,7 +332,7 @@ class MyRegLib:
                     self.nodes.pop(index - 1 - diff)
                     diff += 2
                     second -= 2
-                    print("after |  $", end="")
+                    #print("after |  $", end="")
                     self.printListOfNodes()
         self.nodes.pop(first - 2)
         self.nodes.pop(first - 2)
@@ -498,7 +500,7 @@ class MyRegLib:
             newNFA.finish = b
             node.NFA = newNFA
         self.NFAgraph = node.NFA
-    #    print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<NFA готов>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+        print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<NFA готов>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         return 0
 
     def makeDfaForNfa(self):
@@ -514,6 +516,7 @@ class MyRegLib:
         startNFAnodes.append(startPosNFA)
         currentState = dfa.DFAnode(startNFAnodes)
         currentState = self.DFAgraph.findEpsilonClosure(currentState)
+        currentState.isItStart = True
         self.DFAgraph.start = currentState
         self.DFAgraph.DFAnodes.append(currentState)
         if currentState is None:
@@ -522,22 +525,20 @@ class MyRegLib:
         for node in self.DFAgraph.DFAnodes:
         #    print("Нодов вот стольоко:", len(self.DFAgraph.DFAnodes))
             for liter in self.language:
-
                 nextNode = self.DFAgraph.findAnyLiterClosure(liter, node)
                 nextNode = self.DFAgraph.findEpsilonClosure(nextNode)
                 nextNode = self.DFAgraph.addStateIfUnique(nextNode)
+                # if nextNode == self.DFAgraph.emptyState:
+                #     print("cvdfobyuovbufosdbhuovbhufobwyuobvfuobwhuvobfjwbvhuo")
+                # else:
+                #     print("123")
                 node.transitList.append(GraphTrans(liter, nextNode))
                 if node.statement is not None and finishPosNFA in node.statement:
                    # print("Добввляю конечное состояние в DFA")
                     node.isItFinish = True
-
-        # #тут удаляю вторую нулевую вершину
-        # for index, node in enumerate(self.DFAgraph.DFAnodes):
-        #     if len(node.transitList) == 0:
-        #         self.DFAgraph.DFAnodes.pop(index)
-        #         print("удалил старую пустуювершину")
-
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<DFA готов[", len(self.DFAgraph.DFAnodes), "]>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+        if self.DFAgraph.emptyState in self.DFAgraph.DFAnodes:
+            print("ЧТО_ТО ПОШЛО НЕ ТАК!!!!!! (неверный ДКА)")
 
     def makeMDFAfromDFA(self):
         print("doing mDFA")
@@ -575,8 +576,6 @@ class MyRegLib:
         plt.show()
 
     def addSubtreeToDrawing(self, node):
-        if node.name == "[|]":
-            print("детей у него:", len(node.children))
 
         nodeName = node.name + "!" + str(id(node) % 1000)
         self.treeDrawing.add_node(nodeName)
@@ -633,11 +632,9 @@ class MyRegLib:
         root = dfa.start
         start = str(id(dfa.start) % 1000)
         self.drawCheckList.clear()
-
         self.drawSubDFA(root, start)
-
-#        pos3 = nx.planar_layout(self.dfaDrawing, scale=1)
-        pos3 = nx.random_layout(self.dfaDrawing)
+       # pos3 = nx.random_layout(self.dfaDrawing)
+        pos3 = nx.planar_layout(self.dfaDrawing)
         nx.draw_networkx_nodes(self.dfaDrawing, pos3)
         nx.draw_networkx_edges(self.dfaDrawing, pos3, arrowsize=15)
         nx.draw_networkx_labels(self.dfaDrawing, pos3)
@@ -648,30 +645,28 @@ class MyRegLib:
     def drawSubDFA(self, node, start):
         nodeName = str(id(node) % 1000)
         zero = str(id(self.DFAgraph.emptyState) % 1000)
-        if node == zero:
+        if nodeName == zero:
             nodeName = "zero"
         if nodeName == start:
             nodeName = "start"
+        if node.isItFinish:
+            nodeName = "Fin" + nodeName
         if nodeName not in self.drawCheckList:
             self.drawCheckList.append(nodeName)
             self.dfaDrawing.add_node(nodeName)
-            print("Для", id(node) % 1000)
-            print("переходы:", len(node.transitList))
-            for i in node.transitList:
-                print("---", i.liters, id(i.target) % 1000)
+        #    print("Для", id(node) % 1000)
+        #    print("переходы:", len(node.transitList))
             for trans in node.transitList:
                 childName = str(id(trans.target) % 1000)
                 if childName == start:
                     childName = "start"
                 if childName == zero:
                     childName = "zero"
+                if trans.target.isItFinish:
+                    childName = "Fin" + childName
                 self.drawSubDFA(trans.target, start)
-                edgeName = "-" + trans.liters[0] + "-" + str(id(trans) % 100)
-                # self.dfaDrawing.add_node(edgeName)
-                # self.dfaDrawing.add_edge(nodeName, edgeName)
-                # self.dfaDrawing.add_edge(edgeName, childName)
                 self.dfaDrawing.add_edge(nodeName, childName, label=trans.liters[0])
-                print("добавил нод дяля", nodeName, "и", childName)
+                # print("добавил нод дяля", nodeName, "и", childName)
 
     def drawMinDFA(self):
         self.mDFA.printNodes()
@@ -707,11 +702,8 @@ class MyRegLib:
                     childName = "start"
                 self.drawSubMinDFA(trans.target, start)
                 edgeName = "-" + trans.liters[0] + "-" + str(id(trans) % 100)
-                # self.dfaDrawing.add_node(edgeName)
-                # self.dfaDrawing.add_edge(nodeName, edgeName)
-                # self.dfaDrawing.add_edge(edgeName, childName)
                 self.mdfaDrawing.add_edge(nodeName, childName, label=trans.liters[0])
-                print("добавил едж", trans.liters[0], "для", nodeName, "и", childName)
+                #print("добавил едж", trans.liters[0], "для", nodeName, "и", childName)
 
     def search(self, string=None):
 
@@ -720,7 +712,6 @@ class MyRegLib:
             self.groups.append(Group())
 
         print("\n\n\n>>>>>>>>>Начинаю поиск<<<<<<<<<   (", string, ")")
-        print(">>>>>>>>>Начинаю поиск<<<<<<<<<")
         if self.NFAgraph is None:
             print("Досрочное завершение поиска, не найден скомпилированный NFA")
             return 1
@@ -741,20 +732,26 @@ class MyRegLib:
         self.makeTree()
         self.makeNfaForNode(self.nodes[0])
         self.makeDfaForNfa()
-        self.makeMDFAfromDFA()
+        #Убрал его только для окончательных тестов (для картинок вернуть)
+        #self.makeMDFAfromDFA()
 
 
     def draw(self):
-        self.drawTree()
-        self.drawNFA()
+      #  self.drawTree()
+      #  self.drawNFA()
         self.drawDFA()
-        self.drawMinDFA()
+      #  self.drawMinDFA()
 
 
     def regexRecovery(self):
-        recovery = RegexRecovery.RegexRecovery(self.mDFA)
-        regex = recovery.makeRegexRecovery()
+        recovery = RegexRecovery.RegexRecovery(self.DFAgraph)
+        recovery.makeRegexRecovery()
 
+    def printSearchingResults(self):
+        print("Итог поиска регулярки:", self.groups[0].processed)
+        print("В группах захвата было:", end=" ")
+        for index in range(1, len(self.groups)):
+            print(index, ")", self.groups[index].processed, end=" ", sep="")
 
     # class GraphNode:
     #     def __init__(self, name="", number=0):

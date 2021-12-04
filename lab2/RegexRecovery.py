@@ -13,15 +13,15 @@ class RegexNode:
         self.isDeleted = False
         self.nodeDfa = nodeDfa
         self.translist = list()
-        if self.nodeDfa.translist is None:
-            self.nodeDfa.translist = list()
+        if self.nodeDfa.transitList is None:
+            self.nodeDfa.transitList = list()
 
 
 class RegexRecovery:
-    def __init__(self, minDfa):
+    def __init__(self, dfa):
         self.regexNodes = list()
-        self.minDfa = minDfa
-        self.dfaNodes = list(self.minDfa.pi)
+        self.dfa = dfa
+        self.dfaNodes = list(self.dfa.DFAnodes)
         self.startNodes = list()
         self.finishNodes = list()
         self.resultRegex = ""
@@ -32,31 +32,30 @@ class RegexRecovery:
         self.deleteExtraNodesForAllPairs()
         return self.resultRegex
 
-
-
     def makeRegexNodes(self):
         #сначала просто создаем для каждого ДКА нода новый нод
         for node in self.dfaNodes:
             regexNode = RegexNode(node)
             self.regexNodes.append(regexNode)
-            regexNode.isStart = node.isItStart
-            regexNode.isFinish = node.isItFinish
-        #создали, теперь бы создать все переходы (поднимаю из ДКА)
+            regexNode.isItStart = node.isItStart
+            regexNode.isItFinish = node.isItFinish
+        #создали, теперь бы создать все переходы (кроме переходов в нуль) (поднимаю из ДКА)
         for regexNode in self.regexNodes:
-            for dfaTrans in regexNode.nodeDfa.translist:
+            for dfaTrans in regexNode.nodeDfa.transitList:
                 for targetRegexNode in self.regexNodes:
                     if dfaTrans.target == targetRegexNode.nodeDfa:
+                        if dfaTrans.target == self.dfa.emptyState:
+                            print("плохая теория работает")
+                        else:
+                            print("хорошая теория сработала", id(dfaTrans.target))
                         regexNode.translist.append(RegexTrans(target=targetRegexNode,
                                                               defaultTrans=dfaTrans.liters[0]))
-
     def findStartAndFinishNodes(self):
         for node in self.regexNodes:
             if node.isItFinish:
                 self.finishNodes.append(node)
             if node.isItStart:
                 self.startNodes.append(node)
-
-
 
     def resetRegexes(self):
         defaultTranses = list()
@@ -69,13 +68,12 @@ class RegexRecovery:
             node.translist = list(defaultTranses)
             defaultTranses.clear()
 
-
     def deleteExtraNodesForAllPairs(self):
         for startNode in self.startNodes:
             for finishNode in self.finishNodes:
                 self.resetRegexes()
                 for regexNode in self.regexNodes:
-                    if not (regexNode.isStart or regexNode.isFinish or regexNode.isDeleted):
+                    if not (regexNode == startNode or regexNode == finishNode):
                         self.deleteNode(regexNode)
                     self.addRegexForCurrentStartAndFinishToResult(startNode.translist[0])
 
@@ -155,19 +153,15 @@ class RegexRecovery:
                 newTrans.regex = resultRegex
                 leftNode.translist.append(newTrans)  #ве
 
-
-
                     #вот тут возник затуп, потому что я не понимаю, что делать, если у нас несколько трансов между двумя вершинами (то есть понятно, что там "ИЛИ", но не понятно, возможен ли вообще такай исход у меня)
-            
-
 
     def addRegexForCurrentStartAndFinishToResult(self, regex):
-        print("Вот такая вышла регуярка для текущих стартовой и конечной вершин", regex)
-        print("вот такая текущая регулярка", regex)
+        print("Вот такая вышла регуярка для текущих стартовой и конечной вершин", regex.regex)
+        print("вот такая текущая регулярка", regex.regex)
         if self.resultRegex != "":
-            self.resultRegex += "|(:" + regex + ")"
+            self.resultRegex += "|(:" + regex.regex + ")"
         else:
-            self.resultRegex += "(:" + regex + ")"
+            self.resultRegex += "(:" + regex.regex + ")"
 
 
 
