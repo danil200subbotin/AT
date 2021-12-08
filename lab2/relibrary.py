@@ -74,6 +74,7 @@ class MyRegLib:
         self.drawCheckList = list()
         self.dekart = None
         self.groups.append(Group())
+        self.recoveredString = None
 
     def __sub__(self, other):
         #ну вот и настало время написать разность
@@ -653,7 +654,8 @@ class MyRegLib:
             nodeName = "Fin" + nodeName
         if nodeName not in self.drawCheckList:
             self.drawCheckList.append(nodeName)
-            self.dfaDrawing.add_node(nodeName)
+            if nodeName != "zero":
+                self.dfaDrawing.add_node(nodeName)
         #    print("Для", id(node) % 1000)
         #    print("переходы:", len(node.transitList))
             for trans in node.transitList:
@@ -665,7 +667,8 @@ class MyRegLib:
                 if trans.target.isItFinish:
                     childName = "Fin" + childName
                 self.drawSubDFA(trans.target, start)
-                self.dfaDrawing.add_edge(nodeName, childName, label=trans.liters[0])
+                if childName != "zero":
+                    self.dfaDrawing.add_edge(nodeName, childName, label=trans.liters[0])
                 # print("добавил нод дяля", nodeName, "и", childName)
 
     def drawMinDFA(self):
@@ -733,19 +736,19 @@ class MyRegLib:
         self.makeNfaForNode(self.nodes[0])
         self.makeDfaForNfa()
         #Убрал его только для окончательных тестов (для картинок вернуть)
-        #self.makeMDFAfromDFA()
+        self.makeMDFAfromDFA()
 
 
     def draw(self):
       #  self.drawTree()
-      #  self.drawNFA()
+        self.drawNFA()
         self.drawDFA()
-      #  self.drawMinDFA()
+        self.drawMinDFA()
 
 
     def regexRecovery(self):
         recovery = RegexRecovery.RegexRecovery(self.DFAgraph)
-        recovery.makeRegexRecovery()
+        self.recoveredString = recovery.makeRegexRecovery()
 
     def printSearchingResults(self):
         print("Итог поиска регулярки:", self.groups[0].processed)

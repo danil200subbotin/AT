@@ -92,7 +92,8 @@ class DFA:
                 if liter in trans.liters:
                     if trans.target in newState:
                         print("вот таперь пора решать эту проблему")
-                    newState.append(trans.target)
+                    else:
+                        newState.append(trans.target)
         for T in newState:
             T.colour = 0
         for T in state:
