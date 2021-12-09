@@ -52,7 +52,7 @@ class mDFA:
                 self.pi[1].nodes.append(node)
             else:
                 node.mDFAid = self.pi[0].id
-                print(self.pi[0].nodes)
+                # print(self.pi[0].nodes)
                 self.pi[0].nodes.append(node)
 
     def nodesTheSame(self, s1, s2):
@@ -60,7 +60,6 @@ class mDFA:
         sameLiter = False
         targetId = 0
         for trans1 in s1.transitList:
-         #   print(trans1.liters)
             litera = trans1.liters[0]
             for trans2 in s2.transitList:
 
@@ -93,7 +92,7 @@ class mDFA:
                 break
             for secondIndex, secondNfaNode in enumerate(node.nodes, start=firstIndex + 1):
                 if not self.nodesTheSame(firstNfaNode, secondNfaNode):
-        #            print("нашел ноды, по которым теперь буду деленее делать")
+                   # print("нашел ноды, по которым теперь буду деленее делать")
                     firstDiffNode = firstNfaNode
                     secondDiffNode = secondNfaNode
                     self.wasNewSubdLastTime = True
@@ -114,7 +113,7 @@ class mDFA:
             secondNewG.id = id(secondNewG)
             thirdNewG = minDFAnode(otherNodes)
             thirdNewG.id = id(thirdNewG)
-            # в каждом из новых нодов элементам показываю индекс вового узла mDFA
+            # в каждом из новых нодов элементам показываю индекс нового узла mDFA
             for node in firstNewG.nodes:
                 node.mDFAid = firstNewG.id
             for node in secondNewG.nodes:
@@ -125,9 +124,9 @@ class mDFA:
             self.pi.append(firstNewG)
             self.pi.append(secondNewG)
             self.pi.append(thirdNewG)
-            return True  #это значит, что разбиение было, надо бы удалить pi
+            return True  # это значит, что разбиение было, надо бы удалить pi
 
-        return False   #это значит, что разбиения не было, ничего удалять не нужно
+        return False   # это значит, что разбиения не было, ничего удалять не нужно
 
 
     def makeTransesforMinDFA(self):
@@ -142,8 +141,9 @@ class mDFA:
 
 
     def printNodes(self):
-        for node in self.pi:
-            print(id(node) % 1000, "del? =", node.isNodeDeleted)
+        pass
+        # for node in self.pi:
+        #     print(id(node) % 1000, "del? =", node.isNodeDeleted)
 
 """
 class DFAnode:

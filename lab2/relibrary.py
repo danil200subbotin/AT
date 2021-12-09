@@ -196,9 +196,9 @@ class MyRegLib:
     def simplifySubstring(self, first, second):
         self.nodes.pop(second + 1)
 
-        for i in range(first, second + 1):
-            print(self.nodes[i].name, end="")
-        print()
+        # for i in range(first, second + 1):
+        #     print(self.nodes[i].name, end="")
+        # print()
 
         for index in range(first, second + 1):
             #print("2index =", first, ",", second)
@@ -303,7 +303,7 @@ class MyRegLib:
                     if not self.nodes[index].name == "|" and not self.nodes[index + 1].name == "|":
                         firstSun = self.nodes[index]
                         secondSun = self.nodes[index + 1]
-                        print("Присоединяю", secondSun.name, "к", firstSun.name)
+                       # print("Присоединяю", secondSun.name, "к", firstSun.name)
                       #  groupIndex = self.nodes[index].groupIndex
                         self.nodes.pop(index)
                       #  self.nodes[index].groupIndex = groupIndex
@@ -338,9 +338,9 @@ class MyRegLib:
         self.nodes.pop(first - 2)
         self.nodes.pop(first - 2)
 
-        print("----------------")
-        self.printListOfNodes()
-        print("----------------")
+        # print("----------------")
+        # self.printListOfNodes()
+        # print("----------------")
 
 
     def duplicateNode(self, node):  #для {} использую
@@ -413,13 +413,13 @@ class MyRegLib:
 
     def makeNfaForNode(self, node=None):
 
-        for child in node.children:
-            if child.NFA is None:
-                self.makeNfaForNode(child)
-
         if node is None:
             print("попытка создать NFA для пустой вершины")
             return 1
+
+        for child in node.children:
+            if child.NFA is None:
+                self.makeNfaForNode(child)
 
         if node.name in {"$"} or len(node.children) == 0:
     #        print("Обрабатываю пустой узел или лист")
@@ -520,24 +520,22 @@ class MyRegLib:
         currentState.isItStart = True
         self.DFAgraph.start = currentState
         self.DFAgraph.DFAnodes.append(currentState)
-        if currentState is None:
-            print("-----------------------------wtf0----------------------------------")
         #пошёл обработку по алгоритму с лекции
-        for node in self.DFAgraph.DFAnodes:
-        #    print("Нодов вот стольоко:", len(self.DFAgraph.DFAnodes))
+        for index, node in enumerate(self.DFAgraph.DFAnodes):
+            if index == 0:
+                print("1")
             for liter in self.language:
                 nextNode = self.DFAgraph.findAnyLiterClosure(liter, node)
-                nextNode = self.DFAgraph.findEpsilonClosure(nextNode)
-                nextNode = self.DFAgraph.addStateIfUnique(nextNode)
-                # if nextNode == self.DFAgraph.emptyState:
-                #     print("cvdfobyuovbufosdbhuovbhufobwyuobvfuobwhuvobfjwbvhuo")
-                # else:
-                #     print("123")
-                node.transitList.append(GraphTrans(liter, nextNode))
-                if node.statement is not None and finishPosNFA in node.statement:
-                   # print("Добввляю конечное состояние в DFA")
-                    node.isItFinish = True
+                if nextNode is not None:
+                    nextNode = self.DFAgraph.findEpsilonClosure(nextNode)
+                    nextNode = self.DFAgraph.addStateIfUnique(nextNode)
+                    node.transitList.append(GraphTrans(liter, nextNode))
+            if node.statement is not None and finishPosNFA in node.statement:
+               # print("Добввляю конечное состояние в DFA")
+                        node.isItFinish = True
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<DFA готов[", len(self.DFAgraph.DFAnodes), "]>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+        # self.drawNFA()
+        # self.drawDFA()
         if self.DFAgraph.emptyState in self.DFAgraph.DFAnodes:
             print("ЧТО_ТО ПОШЛО НЕ ТАК!!!!!! (неверный ДКА)")
 
@@ -736,14 +734,14 @@ class MyRegLib:
         self.makeNfaForNode(self.nodes[0])
         self.makeDfaForNfa()
         #Убрал его только для окончательных тестов (для картинок вернуть)
-        self.makeMDFAfromDFA()
+        #self.makeMDFAfromDFA()
 
 
     def draw(self):
-      #  self.drawTree()
+        # self.drawTree()
         self.drawNFA()
         self.drawDFA()
-        self.drawMinDFA()
+        # self.drawMinDFA()
 
 
     def regexRecovery(self):
@@ -755,53 +753,6 @@ class MyRegLib:
         print("В группах захвата было:", end=" ")
         for index in range(1, len(self.groups)):
             print(index, ")", self.groups[index].processed, end=" ", sep="")
-
-    # class GraphNode:
-    #     def __init__(self, name="", number=0):
-    #         self.name = name
-    #         self.number = number
-    #         self.transitList = list()
-    #         self.colour = 0
-
-    # class GraphTrans:
-    #     def __init__(self, liters=None, target=None):
-    #         self.liters = liters
-    #         self.target = target
-    #         self.groupID = 0
-    #
-    # class NFA:
-    #     def __init__(self, name="", number=0):
-    #         self.name = name
-    #         self.number = number
-    #         self.start = GraphNode("$")
-    #         self.finish = GraphNode("$")
-
-
-
-
-"""
-class NFAnode:
-    def __init__(self, name="", number=0):
-        self.name = name
-        self.number = number
-        self.transitList = list()
-
-class NFAtrans:
-    def __init__(self, liters=list(), target=Node("$")):
-        self.liters = liters
-        self.target = target
-        self.groupID = 0
-
-class NFA:
-    def __init__(self, name="", number=0):
-        self.name = name
-        self.number = number
-        self.start = Node("$")
-        self.finish = Node("$")
-"""
-
-     #   print("Самые ближние скобки на позициях:", self.regString[result[0]], self.regString[result[1]])
-
 
 
 

@@ -60,9 +60,9 @@ class RegexRecovery:
     def resetRegexes(self):
         for node in self.regexNodes:
             node.isDeleted = False
-            print("-------пришло---------->", len(node.translist))
+    #        print("-------пришло---------->", len(node.translist))
             node.translist[:] = [x for x in node.translist if not x.isItExtraTrans]
-            print("--------ушло---------->", len(node.translist))
+    #        print("--------ушло---------->", len(node.translist))
             for trans in node.translist:
                 trans.isTransDeleted = False
                 if trans.defaultTrans is not None:
@@ -71,9 +71,9 @@ class RegexRecovery:
     def deleteExtraNodesForAllPairs(self):
         for startNode in self.startNodes:
             for fiIndex, finishNode in enumerate(self.finishNodes):
-                print("ПРОСТО ТЕСТИРУЮ, ЧТО СТАРТ один и тот ЖЕ", id(startNode) % 1000, len(startNode.translist))
+                # print("ПРОСТО ТЕСТИРУЮ, ЧТО СТАРТ один и тот ЖЕ", id(startNode) % 1000, len(startNode.translist))
                 self.resetRegexes()
-                print("ПРОСТО ТЕСТИРУЮ, ЧТО СТАРТ один и тот ЖЕ2", id(startNode) % 1000, len(startNode.translist))
+                # print("ПРОСТО ТЕСТИРУЮ, ЧТО СТАРТ один и тот ЖЕ2", id(startNode) % 1000, len(startNode.translist))
                 for regexNode in self.regexNodes:
                     if not (regexNode == startNode or regexNode == finishNode):
                         self.deleteNode(regexNode)
@@ -85,19 +85,19 @@ class RegexRecovery:
 
 
     def deleteNode(self, regexNode):
-        print("Удаляю:", id(regexNode) % 1000)
+        # print("Удаляю:", id(regexNode) % 1000)
         incomingNodes = list()
         outgoingNodes = list()
         loopTranses = list()
         # сначала определяю те вершины, которые будут слева (картинка с лекции)
-        print("количество вершин слева ДО:", len(incomingNodes))
+    #    print("количество вершин слева ДО:", len(incomingNodes))
         for node in self.regexNodes:
             for trans in node.translist:
                 #ищу вершины, из которых есть переходы в S
                 if trans.target == regexNode and node != regexNode and not trans.isTransDeleted:
                     # print("Добавляю incomingNode")
                     incomingNodes.append(node)
-        print("количество вершин слева ПОСЛЕ:", len(incomingNodes))
+   #     print("количество вершин слева ПОСЛЕ:", len(incomingNodes))
 
         # теперь определяю те вершины, которые будут справа (картинка с лекции)
         for outgoingTrans in regexNode.translist:  # ищу вершины, в которые есть переходы из S
@@ -106,7 +106,7 @@ class RegexRecovery:
             else:
                 if not outgoingTrans.isTransDeleted:
                     loopTranses.append(outgoingTrans)
-        print("Определил все смежные вершины")
+        # print("Определил все смежные вершины")
 
         #собираю "…" для циклических
         loopRegular = ""
@@ -162,15 +162,12 @@ class RegexRecovery:
                     leftNode.translist.append(newTrans)  #ве
                     isSmthngAppended = True
                 if isSmthngAppended:
-                    print(id(leftNode) % 1000, "ДЛИИИИИИИИИИИИИНА1 =", len(leftNode.translist))
                     for index, trans in enumerate(leftNode.translist):   # удалил у левой вершины ее пеереход на центрл
                         if trans.target == regexNode:
-                            # print("Удаляю вот такую штуку:", len(leftNode.translist))
                             leftNode.translist[index].isTransDeleted = True
                             if len(leftNode.translist) == 0:
                                 pass
                             isSmthngAppended = False
-                            print("ДЛИИИИИИИИИИИИИНА2 =", len(leftNode.translist))
                             break   # вот эта строчка под вопросом
                 else:
                     print("Почему так???")
@@ -186,8 +183,8 @@ class RegexRecovery:
                     #вот тут возник затуп, потому что я не понимаю, что делать, если у нас несколько трансов между двумя вершинами (то есть понятно, что там "ИЛИ", но не понятно, возможен ли вообще такай исход у меня)
 
     def addRegexForCurrentStartAndFinishToResult(self, regex):
-        print("Вот такая вышла регуярка для текущих стартовой и конечной вершин", regex.regex)
-        print("вот такая текущая регулярка", regex.regex)
+        # print("Вот такая вышла регуярка для текущих стартовой и конечной вершин", regex.regex)
+        # print("вот такая текущая регулярка", regex.regex)
         for trans in self.regexNodes[0].translist:
             if trans.target == self.regexNodes[0]:
                 print("123")

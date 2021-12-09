@@ -1,5 +1,6 @@
 
 # self.statements будет хранить список списков NFAnodes
+import relibrary
 
 class DFAnode:
     def __init__(self, statement=list()):
@@ -35,7 +36,7 @@ class DFA:
     def addStateIfUnique(self, NewNode=None):
         state = NewNode.statement
         if state is None:
-            return self.emptyState
+            return None
 
         isDiffWithCurrState = False
 
@@ -55,14 +56,13 @@ class DFA:
         self.DFAnodes.append(NewNode)
         print("Ну вот здесь добавил нод в ДКА")
       #  print("Вот такое это состояние:")
-        for iterator in NewNode.statement:
-            print(iterator.name)
+      #   for iterator in NewNode.statement:
+      #       print(iterator.name)
         return NewNode
 
     def findEpsilonClosure(self, node=None):
         if node.statement is None:
-        #    print("Заставили искать Эпсилон замыкание для пустоты :(")
-            return self.emptyState
+            return None
         state = node.statement
         newState = list(state)
         # T - состояние(исходного НКА), t - ребенок состояния (тоже состояние)
@@ -75,30 +75,32 @@ class DFA:
        #             print("Дополнил замыкание вершинкой")
                     newState.append(trans.target)
         newNode = DFAnode(newState)
+        for T in newState:
+            T.colour = 0
      #   print("добавил в Z-замыкании:", len(newState) - len(state), "вершин исходного НКА")
         return newNode
 
     def findAnyLiterClosure(self, liter, node=None):
         state = node.statement
         if state is None:
-            return self.emptyState
+            return None
         newState = list(state)
-        # T - состояние (исходного НКА)
-        for T in newState:
+        finalNewState = list()
+        for T in newState:  # T - состояние (исходного НКА)
             if T.colour == 1:
                 continue
             T.colour = 1
             for trans in T.transitList:
                 if liter in trans.liters:
                     if trans.target in newState:
-                        print("вот таперь пора решать эту проблему")
+                        node.transitList.append(relibrary.GraphTrans(liter, node))
                     else:
-                        newState.append(trans.target)
+                        finalNewState.append(trans.target)
         for T in newState:
             T.colour = 0
-        for T in state:
-            newState.remove(T)  # удаляю из замыкания изначальные состояния
-        if len(newState) == 0:
-            return self.emptyState
-        newNode = DFAnode(newState)
-        return newNode
+
+        if len(finalNewState) == 0:
+            return None
+        else:
+            return DFAnode(finalNewState)
+

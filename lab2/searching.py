@@ -41,6 +41,9 @@ class searchClass:
                     break
             self.currentString = self.currentString[1:]
         print("=======================Подстрока не найдена=======================")
+        found = relibrary.Group("")
+        found.processed = ""
+        self.regLib.groups[0] = found
         #self.drawGraph()
 
 
@@ -135,7 +138,7 @@ class searchClass:
             nodeName = "start"
         if nodeName == finish:
             nodeName = "finish"
-        if not nodeName in self.drawCheckList:
+        if nodeName not in self.drawCheckList:
             self.drawCheckList.append(nodeName)
             self.graphDrawing.add_node(nodeName, size=100)
             for trans in node.transitList:
@@ -151,24 +154,3 @@ class searchClass:
                 self.graphDrawing.add_edge(nodeName, edgeName)
                 self.graphDrawing.add_edge(edgeName, childName)
         #       self.nfaDrawing.add_edge(nodeName, childName, label=trans.liters[0])
-
-
-
-
-
-
-
-
-#
-# class GraphNode:
-#     def __init__(self, name="", number=0):
-#         self.name = name
-# #       self.number = number
-#         self.transitList = list()
-#         self.colour = 0
-#
-# class GraphTrans:
-#     def __init__(self, liters=None, target=None, groupIndex=None):
-#         self.liters = liters
-#         self.target = target
-#         self.groupIndex = groupIndex
