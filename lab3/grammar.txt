@@ -1,0 +1,5 @@
+program = "print", "(", expression, ")", ";";
+expression = number, { ("+"|"-"), number } ;
+number = digit+
+digit = [0-9];
+
