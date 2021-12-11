@@ -78,10 +78,21 @@ class RegexRecovery:
                     if not (regexNode == startNode or regexNode == finishNode):
                         self.deleteNode(regexNode)
                         regexNode.isDeleted = True
+                if startNode == finishNode:
+                    trivialRegex = RegexTrans(None)
+                    trivialRegex.regex = "$"
+                    startNode.translist.append(trivialRegex)
                 for trans in startNode.translist:
                     if not trans.isTransDeleted:
+                        if trans.target == startNode:
+                            trans.regex += "…"
+                        else:
+                            for finTranse in finishNode.translist:
+                                if finTranse.target == finishNode:
+                                    trans.regex = trans.regex + finTranse.regex + "…"
+
+
                         self.addRegexForCurrentStartAndFinishToResult(trans)
-                        break
 
 
     def deleteNode(self, regexNode):
@@ -114,19 +125,27 @@ class RegexRecovery:
             if len(loopTranses) == 1:
                 loopRegular = loopTranses[0].regex + "…"
             if len(loopTranses) > 1:
-                loopRegular = "["
+                loopRegular = "(:"
                 for trans in loopTranses:
                     loopRegular += trans.regex
-                loopRegular += "]…"
+                loopRegular += ")…"
+            loopRegular = loopRegular + "|" + "$"
 
         #создаю регулярки для каждой пары incomigng-outgoing
         isSmthngAppended = False
+        loopTransIndex = -1
         if len(regexNode.translist) > 0:
             for leftNode in incomingNodes:
                 transToCentral = None
                 for index, trans in enumerate(leftNode.translist):
                     if trans.target == regexNode:
+                        loopTransIndex = index
                         transToCentral = trans
+                # if len(outgoingNodes) == 0:
+                #     resultRegex = "(:" + transToCentral.regex + ")" + loopRegular
+                #     leftNode.translist[loopTransIndex].regex = resultRegex
+                if len(outgoingNodes) == 0:
+                    leftNode.translist[loopTransIndex].isTransDeleted = True
                 for rightNode in outgoingNodes:
                     resultRegex = ""
                     straightPath = ""

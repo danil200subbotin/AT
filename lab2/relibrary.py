@@ -96,6 +96,7 @@ class MyRegLib:
                 for letter in self.language:
                     secondSide = self.findSecondSideForSub(nodeLeft, nodeRight, letter, other)
                     newTrans = GraphTrans(liters=list([letter]), target=secondSide)
+                    firstSide.transitList.append(newTrans)
         return self.dekart
 
     def findNodeforSub(self, indexLeft, indexRight):
@@ -380,8 +381,8 @@ class MyRegLib:
             self.simplifySubstring(closest[0] + 1, closest[1] - 1)
             closest = self.closestBrackets()
         print(self.nodes)
-        #self.printTreeDependenses(self.nodes[0])
-        self.reverseRegString = self.makeReverseRegex(self.nodes[0])
+        if len(self.nodes) != 0:
+            self.reverseRegString = self.makeReverseRegex(self.nodes[0])
 
     def makeReverseRegex(self, node):
         for child in node.children:

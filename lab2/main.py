@@ -19,9 +19,13 @@ printableSymbols = ['0', '1', '2', '3', '4', '5']
 
 
 
-subReg1 = relibrary.MyRegLib("1|2", printableSymbols)
+subReg1 = relibrary.MyRegLib("1234", printableSymbols)
+subReg2 = relibrary.MyRegLib("1", printableSymbols)
 subReg1.compile()
-subReg1.draw()
+subReg2.compile()
+subReg1 - subReg2
+subReg1.DFAgraph = subReg1.dekart
+subReg1.drawDFA()
 
 
 subReg1.regexRecovery()

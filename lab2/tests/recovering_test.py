@@ -54,15 +54,75 @@ class SearchTest(TestCase):
         self.assertEqual("(:(:(:(:(:(:22)2)2)2)1))|(:(:(:(:(:(:22)2)2)2)2))", a.recoveredString)
 
     def test_not_simple_recovery3(self):
-        a = relibrary.MyRegLib("(:1|2)33", printableSymbols4)
+        a = relibrary.MyRegLib("23|1…", printableSymbols4)
         a.makeTree()
         a.makeNfaForNode(a.nodes[0])
         a.drawNFA()
         a.makeDfaForNfa()
-        a.drawDFA()
+        # a.drawDFA()
         a.regexRecovery()
-        self.assertEqual("(:(:(:(:(:(:22)2)2)2)1))|(:(:(:(:(:(:22)2)2)2)2))", a.recoveredString)
+        self.assertEqual("(:$)|(:11…)|(:$1…)|(:(:23))", a.recoveredString)
 
+    def test_not_simple_recovery4(self):
+        a = relibrary.MyRegLib("2…|1…", printableSymbols4)
+        a.makeTree()
+        a.makeNfaForNode(a.nodes[0])
+        # a.drawNFA()
+        a.makeDfaForNfa()
+        # a.drawDFA()
+        a.regexRecovery()
+        self.assertEqual("(:$)|(:11…)|(:$1…)|(:22…)|(:$1…2…)", a.recoveredString)
+
+    def test_not_simple_recovery5(self):
+        a = relibrary.MyRegLib("8|2…", printableSymbols4)
+        a.makeTree()
+        a.makeNfaForNode(a.nodes[0])
+        # a.drawNFA()
+        a.makeDfaForNfa()
+        # a.drawDFA()
+        a.regexRecovery()
+        self.assertEqual("(:$)|(:22…)|(:$2…)|(:8)", a.recoveredString)
+
+    def test_not_simple_recovery6(self):
+        a = relibrary.MyRegLib("82…", printableSymbols4)
+        a.makeTree()
+        a.makeNfaForNode(a.nodes[0])
+        # a.drawNFA()
+        a.makeDfaForNfa()
+        # a.drawDFA()
+        a.regexRecovery()
+        self.assertEqual("(:8)|(:(:82)2…)", a.recoveredString)
+
+
+    def test_not_simple_recovery7(self):
+        a = relibrary.MyRegLib("8{5}2…", printableSymbols4)
+        a.makeTree()
+        a.makeNfaForNode(a.nodes[0])
+        # a.drawNFA()
+        a.makeDfaForNfa()
+        # a.drawDFA()
+        a.regexRecovery()
+        self.assertEqual("(:(:(:(:(:88)8)8)8))|(:(:(:(:(:(:88)8)8)8)2)2…)", a.recoveredString)
+
+    def test_not_simple_recovery8(self):
+        a = relibrary.MyRegLib("8{5}2…", printableSymbols4)
+        a.makeTree()
+        a.makeNfaForNode(a.nodes[0])
+        # a.drawNFA()
+        a.makeDfaForNfa()
+        # a.drawDFA()
+        a.regexRecovery()
+        self.assertEqual("(:(:(:(:(:88)8)8)8))|(:(:(:(:(:(:88)8)8)8)2)2…)", a.recoveredString)
+
+    def test_not_simple_recovery9(self):
+        a = relibrary.MyRegLib("8{5}2…[qwe]}", printableSymbols4)
+        a.makeTree()
+        a.makeNfaForNode(a.nodes[0])
+        # a.drawNFA()
+        a.makeDfaForNfa()
+        # a.drawDFA()
+        a.regexRecovery()
+        self.assertEqual("(:(:(:(:(:(:(:88)8)8)8)e))|(:(:(:(:(:(:88)8)8)8)2)2…|$e))|(:(:(:(:(:(:(:88)8)8)8)q))|(:(:(:(:(:(:88)8)8)8)2)2…|$q))|(:(:(:(:(:(:(:(:88)8)8)8)e))|(:(:(:(:(:(:88)8)8)8)2)2…|$e)}))|(:(:(:(:(:(:(:(:(:88)8)8)8)e))|(:(:(:(:(:(:88)8)8)8)2)2…|$e)}))|(:(:(:(:(:(:(:88)8)8)8)e))|(:(:(:(:(:(:88)8)8)8)2)2…|$e)}))|(:(:(:(:(:(:(:(:88)8)8)8)q))|(:(:(:(:(:(:88)8)8)8)2)2…|$q)}))|(:(:(:(:(:(:(:(:(:88)8)8)8)q))|(:(:(:(:(:(:88)8)8)8)2)2…|$q)}))|(:(:(:(:(:(:(:88)8)8)8)q))|(:(:(:(:(:(:88)8)8)8)2)2…|$q)}))|(:(:(:(:(:(:(:88)8)8)8)w)}))|(:(:(:(:(:(:(:(:88)8)8)8)2)2…|$w)}))", a.recoveredString)
 
 if __name__ == '__main__':
     main()
