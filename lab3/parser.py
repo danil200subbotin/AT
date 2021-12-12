@@ -16,18 +16,15 @@ class Parser:
             return Print(p[2])
 
         @self.pg.production('expression : expression SUM expression')
-        def expression(p):
-            left = p[0]
-            right = p[2]
-            operator = p[1]
-            return Sum(left, right)
-
         @self.pg.production('expression : expression SUB expression')
         def expression(p):
             left = p[0]
             right = p[2]
             operator = p[1]
-            return Sub(left, right)
+            if operator.gettokentype() == 'SUM':
+                return Sum(left, right)
+            elif operator.gettokentype() == 'SUB':
+                return Sub(left, right)
 
         @self.pg.production('expression : NUMBER')
         def number(p):
@@ -39,3 +36,4 @@ class Parser:
 
     def get_parser(self):
         return self.pg.build()
+

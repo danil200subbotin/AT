@@ -1,14 +1,24 @@
 from lexer import Lexer
-from parser import Parser
 
-text_input = """
-print(4 + 4 - 2);
+text_input = """Logic a
+a = true
+Numeric b[10]
+Numeric counter
+Numeric x
+b[1] = 13278194
+counter = 1
+BLOCK
+    { b[1] > 0 } BLOCK
+        x = counter 
+        counter = counter + 1 + x
+        print(x)
+    UNBLOCK
+UNBLOCK    
 """
 
 lexer = Lexer().get_lexer()
 tokens = lexer.lex(text_input)
 
-pg = Parser()
-pg.parse()
-parser = pg.get_parser()
-parser.parse(tokens).eval()
+
+for token in tokens:
+    print(token)

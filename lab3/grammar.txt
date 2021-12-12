@@ -1,5 +1,466 @@
-program = "print", "(", expression, ")", ";";
-expression = number, { ("+"|"-"), number } ;
-number = digit+
-digit = [0-9];
+program
+ : programHeading (INTERFACE)? block DOT
+   ;
+
+programHeading
+ : PROGRAM identifier (LPAREN identifierList RPAREN)? SEMI
+ | UNIT identifier SEMI
+   ;
+
+identifier
+   : IDENT
+   ;
+
+block
+   : (labelDeclarationPart | constantDefinitionPart | typeDefinitionPart | variableDeclarationPart | procedureDeclarationPart | usesUnitsPart | IMPLEMENTATION)* compoundStatement
+   ;
+
+usesUnitsPart
+   : USES identifierList SEMI
+   ;
+
+labelDeclarationPart
+   : LABEL label (COMMA label)* SEMI
+   ;
+
+label
+   : unsignedInteger
+   ;
+
+
+sign
+   : PLUS
+   | MINUS
+   ;
+
+bool_
+   : TRUE
+   | FALSE
+   ;
+
+string
+   : STRING_LITERAL
+   ;
+
+typeDefinitionPart
+   : TYPE (typeDefinition SEMI) +
+   ;
+
+typeDefinition
+   : identifier EQUAL (type_ | procedureType)
+   ;
+
+procedureType
+   : PROCEDURE (formalParameterList)?
+   ;
+
+type_
+   : simpleType
+   | structuredType
+   | pointerType
+   ;
+
+simpleType
+   : scalarType
+   | subrangeType
+   | typeIdentifier
+   | stringtype
+   ;
+
+scalarType
+   : LPAREN identifierList RPAREN
+   ;
+
+subrangeType
+   : constant DOTDOT constant
+   ;
+
+typeIdentifier
+   : identifier
+   | (CHAR | BOOLEAN | INTEGER | REAL | STRING)
+   ;
+
+structuredType
+   : PACKED unpackedStructuredType
+   | unpackedStructuredType
+   ;
+
+unpackedStructuredType
+   : arrayType
+   | recordType
+   | setType
+   | fileType
+   ;
+
+stringtype
+   : STRING LBRACK (identifier | unsignedNumber) RBRACK
+   ;
+
+arrayType
+   : ARRAY LBRACK typeList RBRACK OF componentType
+   | ARRAY LBRACK2 typeList RBRACK2 OF componentType
+   ;
+
+typeList
+   : indexType (COMMA indexType)*
+   ;
+
+indexType
+   : simpleType
+   ;
+
+componentType
+   : type_
+   ;
+
+recordType
+   : RECORD fieldList? END
+   ;
+
+fieldList
+   : fixedPart (SEMI variantPart)?
+   | variantPart
+   ;
+
+fixedPart
+   : recordSection (SEMI recordSection)*
+   ;
+
+recordSection
+   : identifierList COLON type_
+   ;
+
+variantPart
+   : CASE tag OF variant (SEMI variant)*
+   ;
+
+tag
+   : identifier COLON typeIdentifier
+   | typeIdentifier
+   ;
+
+variant
+   : constList COLON LPAREN fieldList RPAREN
+   ;
+
+setType
+   : SET OF baseType
+   ;
+
+baseType
+   : simpleType
+   ;
+
+fileType
+   : FILE OF type_
+   | FILE
+   ;
+
+pointerType
+   : POINTER typeIdentifier
+   ;
+
+variableDeclarationPart
+   : VAR variableDeclaration (SEMI variableDeclaration)* SEMI
+   ;
+
+variableDeclaration
+   : identifierList COLON type_
+   ;
+
+procedureDeclarationPart
+   : procedureDeclaration SEMI
+   ;
+
+procedureDeclaration
+   : procedureDeclaration
+   ;
+
+procedureDeclaration
+   : PROCEDURE identifier (formalParameterList)? SEMI block
+   ;
+
+formalParameterList
+   : LPAREN formalParameterSection (SEMI formalParameterSection)* RPAREN
+   ;
+
+formalParameterSection
+   : parameterGroup
+   | VAR parameterGroup
+   | PROCEDURE parameterGroup
+   ;
+
+parameterGroup
+   : identifierList COLON typeIdentifier
+   ;
+
+identifierList
+   : identifier (COMMA identifier)*
+   ;
+
+constList
+   : constant (COMMA constant)*
+   ;
+
+
+resultType
+   : typeIdentifier
+   ;
+
+statement
+   : label COLON unlabelledStatement
+   | unlabelledStatement
+   ;
+
+unlabelledStatement
+   : simpleStatement
+   | structuredStatement
+   ;
+
+simpleStatement
+   : assignmentStatement
+   | procedureStatement
+   | gotoStatement
+   | emptyStatement
+   ;
+
+assignmentStatement
+   : variable ASSIGN expression
+   ;
+
+variable
+   : (AT identifier | identifier) (LBRACK expression (COMMA expression)* RBRACK | LBRACK2 expression (COMMA expression)* RBRACK2 | DOT identifier | POINTER)*
+   ;
+
+expression
+   : simpleExpression (relationaloperator expression)?
+   ;
+
+relationaloperator
+   : EQUAL
+   | NOT_EQUAL
+   | LT
+   | LE
+   | GE
+   | GT
+   | IN
+   ;
+
+simpleExpression
+   : term (additiveoperator simpleExpression)?
+   ;
+
+additiveoperator
+   : PLUS
+   | MINUS
+   | OR
+   ;
+
+term
+   : signedFactor (multiplicativeoperator term)?
+   ;
+
+multiplicativeoperator
+   : STAR
+   | SLASH
+   | DIV
+   | MOD
+   | AND
+   ;
+
+signedFactor
+   : (PLUS | MINUS)? factor
+   ;
+
+factor
+   : variable
+   | LPAREN expression RPAREN
+   | unsignedConstant
+   | set_
+   | NOT factor
+   | bool_
+   ;
+
+unsignedConstant
+   : unsignedNumber
+   | constantChr
+   | string
+   | NIL
+   ;
+
+parameterList
+   : actualParameter (COMMA actualParameter)*
+   ;
+
+set_
+   : LBRACK elementList RBRACK
+   | LBRACK2 elementList RBRACK2
+   ;
+
+elementList
+   : element (COMMA element)*
+   |
+   ;
+
+element
+   : expression (DOTDOT expression)?
+   ;
+
+procedureStatement
+   : identifier (LPAREN parameterList RPAREN)?
+   ;
+
+actualParameter
+   : expression parameterwidth*
+   ;
+
+parameterwidth
+   : ':' expression
+   ;
+
+gotoStatement
+   : GOTO label
+   ;
+
+emptyStatement
+   :
+   ;
+
+empty_
+   :
+   /* empty */
+   ;
+
+structuredStatement
+   : compoundStatement
+   | conditionalStatement
+   | repetetiveStatement
+   | withStatement
+   ;
+
+compoundStatement
+   : BEGIN statements END
+   ;
+
+statements
+   : statement (SEMI statement)*
+   ;
+
+repetetiveStatement
+   : whileStatement
+   ;
+
+whileStatement
+   : WHILE expression DO statement
+   ;
+
+recordVariableList
+   : variable (COMMA variable)*
+   ;
+
+ARRAY
+   : A R R A Y
+   ;
+
+
+BLOCK
+   : B L O C K
+   ;
+
+BOOLEAN
+   : B O O L E A N
+   ;
+
+UNBLOCK
+   : U N B L O C K
+   ;
+
+INTEGER
+   : I N T E G E R
+   ;
+
+PROCEDURE
+   : P R O C E D U R E
+   ;
+
+PROGRAM
+   : P R O G R A M
+   ;
+
+TO
+   : T O
+   ;
+
+
+TYPE
+   : T Y P E
+   ;
+
+PLUS
+   : '+'
+   ;
+
+MINUS
+   : '-'
+   ;
+
+ASSIGN
+   : '='
+   ;
+
+COMMA
+   : ','
+   ;
+
+SEMI
+   : ';'
+   ;
+
+EQUAL
+   : '?'
+   ;
+
+NOT_EQUAL
+   : '!'
+   ;
+
+LT
+   : '<'
+   ;
+
+GT
+   : '>'
+   ;
+
+LPAREN
+   : '['
+   ;
+
+RPAREN
+   : ']'
+   ;
+
+STRING
+   : S T R I N G
+   ;
+
+TRUE
+   : T R U E
+   ;
+
+FALSE
+   : F A L S E
+   ;
+
+IDENT
+   : ('a' .. 'z' | 'A' .. 'Z') ('a' .. 'z' | 'A' .. 'Z' | '0' .. '9' | '_')*
+   ;
+
+STRING_LITERAL
+   : '\'' ('\'\'' | ~ ('\''))* '\''
+   ;
+
+NUM_INT
+   : ('0' .. '9') +
+   ;
 
