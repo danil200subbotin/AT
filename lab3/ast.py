@@ -1,30 +1,26 @@
-class Number:
-    def __init__(self, value):
-        self.value = value
+class Node(object):
+    # object constructor
+    def __init__(self, t='const', val=None,  ch=[], no=None, pos=None):
+        self.type = t
+        self.value = val
+        self.child = ch
+        self.lineno = no
+        self.lexpos = pos
 
-    def eval(self):
-        return int(self.value)
+    def __repr__(self):
+        return f'{self.type} {self.value}'
 
-
-class BinaryOp:
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-
-class Sum(BinaryOp):
-    def eval(self):
-        return self.left.eval() + self.right.eval()
-
-
-class Sub(BinaryOp):
-    def eval(self):
-        return self.left.eval() - self.right.eval()
-
-
-class Print:
-    def __init__(self, value):
-        self.value = value
-
-    def eval(self):
-        print(self.value.eval())
+    def print(self, lvl=0):
+        if self is None:
+            return
+        print(' ' * lvl, self)
+        if isinstance(self.child, list):
+            for child in self.child:
+                child.print(lvl + 1)
+        elif isinstance(self.child, Node):
+            self.child.print(lvl + 1)
+        elif isinstance(self.child, dict):
+            for key, value in self.child.items():
+                print(' ' * (lvl + 1), key)
+                if value:
+                    value.print(lvl + 2)
