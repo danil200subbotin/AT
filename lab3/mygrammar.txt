@@ -1,3 +1,96 @@
 language "0 + 0,2 * pascal + 0,1 * C"
 
+Сначала идет определение всех переменных
+
 program
+ : programHeading block
+ ;
+
+programHeading
+ : ident
+ ;
+
+ident
+ : IDENT
+
+block
+ : start line sentence_list finish
+ ;
+
+line
+ : LINE
+ ;
+
+start
+ : BLOCK
+ ;
+
+finish
+ : UNBLOCK
+ ;
+
+sentence_list
+ : sentence sentence_list
+ : empty
+ ;
+
+empty
+ : EMPTY
+ ;
+
+sentence
+ : while
+ | announcement
+ | assigment
+ | block
+ ;
+
+while
+ : open_paren_f boolean_expression close_paren_f line block
+ ;
+
+boolean_expression
+ : disjunction
+ | conjunction
+ | module_two
+ | schaeffer
+ | pierce
+ | compare
+ ;
+
+
+compare
+ : expression gt expression
+ | lt
+ | eq
+ | ne
+
+
+
+announcement
+ : type ident open_paren_s digit close_paren_s
+ | type ident
+
+
+disjunction
+ : boolean_expression "+" boolean_expression
+ ;
+
+conjunction
+ : boolean_expression "*" boolean_expression
+ ;
+
+module_two
+ : boolean_expression "-" boolean_expression
+ ;
+
+schaeffer
+ : boolean_expression "/" boolean_expression
+ ;
+
+pierce
+ : boolean_expression "^" boolean_expression
+ ;
+
+
+

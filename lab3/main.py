@@ -16,6 +16,7 @@ BLOCK
 UNBLOCK    
 """
 
+
 lexer = Lexer().get_lexer()
 tokens = lexer.lex(text_input)
 
