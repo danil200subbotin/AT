@@ -10,17 +10,17 @@ class Node(object):
     def __repr__(self):
         return f'{self.type} {self.value}'
 
-    def print(self, lvl=0):
+    def print(self, level=0):
         if self is None:
             return
-        print(' ' * lvl, self)
+        print(' - ' * level, self)
         if isinstance(self.child, list):
             for child in self.child:
-                child.print(lvl + 1)
+                child.print(level + 1)
         elif isinstance(self.child, Node):
-            self.child.print(lvl + 1)
+            self.child.print(level + 1)
         elif isinstance(self.child, dict):
             for key, value in self.child.items():
-                print(' ' * (lvl + 1), key)
+                print(' ' * (level + 1), key)
                 if value:
-                    value.print(lvl + 2)
+                    value.print(level + 2)
