@@ -2,7 +2,6 @@ import sys
 import ply.lex as lex
 
 reserved = {
-    # just for normal programm
     'TRUE': 'TRUE',
     'FALSE': 'FALSE',
     'LOGIC': 'LOGIC',
@@ -17,7 +16,6 @@ reserved = {
     'BLOCK': 'BLOCK',
     'UNBLOCK': 'UNBLOCK',
     'PROC': 'PROC',
-    # specialForRobot
     'MOVEUP': 'MOVEUP',
     'MOVEDOWN': 'MOVEDOWN',
     'MOVERIGHT': 'MOVERIGHT',
@@ -38,7 +36,7 @@ class Lexer(object):
     tokens = list(reserved.values()) + ['DECIMAL', 'VARIABLE',
               'ASSIGNMENT', 'PLUS', 'MINUS',
               'STAR', 'SLASH', 'CARET',
-              'LESS', 'GREATER', 'EQ', 'NOTEQ',
+              'LT', 'GT', 'EQ', 'NE',
               'R_RBRACKET', 'L_RBRACKET',
               'R_QBRACKET', 'L_QBRACKET',
               'R_FBRACKET', 'L_FBRACKET',
@@ -46,7 +44,7 @@ class Lexer(object):
 
     precedence = (
         ('right', 'ASSIGNMENT'),
-        ('left', 'LESS', 'GREATER', 'EQ', 'NOTEQ'),
+        ('left', 'LT', 'GT', 'EQ', 'NE'),
         ('left', 'PLUS', 'MINUS'),
         ('left', 'STAR', 'SLASH'),
         ('right', 'CARET'),
@@ -59,10 +57,10 @@ class Lexer(object):
     t_STAR = r'\*'
     t_SLASH = r'\/'
     t_CARET = r'\^'
-    t_LESS = r'\<'
-    t_GREATER = r'\>'
+    t_LT = r'\<'
+    t_GT = r'\>'
     t_EQ = r'\?'
-    t_NOTEQ = r'\!'
+    t_NE = r'\!'
     t_R_RBRACKET = r'\)'
     t_L_RBRACKET = r'\('
     t_R_QBRACKET = r'\]'
