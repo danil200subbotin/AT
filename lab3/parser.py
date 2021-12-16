@@ -1,9 +1,7 @@
 import ply.yacc as yacc
 from ply.lex import LexError
 import sys
-from typing import List, Dict, Optional
-
-# outer classes
+from typing import List, Dict
 from lexer import Lexer
 from ast import Node
 
@@ -80,19 +78,19 @@ class Parser(object):
         """ cycle : L_FBRACKET expression R_FBRACKET BLOCK inner_statements UNBLOCK"""
         p[0] = Node('cycle', ch={'condition': p[2], 'body': p[5]})
 
-    @staticmethod
-    def p_command(p):
-        """command : MOVEUP      L_RBRACKET variable R_RBRACKET
-                   | MOVEDOWN    L_RBRACKET variable R_RBRACKET
-                   | MOVERIGHT   L_RBRACKET variable R_RBRACKET
-                   | MOVELEFT    L_RBRACKET variable R_RBRACKET
-                   | PINGUP      L_RBRACKET variable R_RBRACKET
-                   | PINGDOWN    L_RBRACKET variable R_RBRACKET
-                   | PINGRIGHT   L_RBRACKET variable R_RBRACKET
-                   | PINGLEFT    L_RBRACKET variable R_RBRACKET
-                   | VISION      L_RBRACKET variable R_RBRACKET
-                   | VOICE       L_RBRACKET expression R_RBRACKET"""
-        p[0] = Node(t='command', val=p[1], ch=p[3], no=p.lineno(1), pos=p.lexpos(1))
+    # @staticmethod
+    # def p_command(p):
+    #     """command : MOVEUP      L_RBRACKET variable R_RBRACKET
+    #                | MOVEDOWN    L_RBRACKET variable R_RBRACKET
+    #                | MOVERIGHT   L_RBRACKET variable R_RBRACKET
+    #                | MOVELEFT    L_RBRACKET variable R_RBRACKET
+    #                | PINGUP      L_RBRACKET variable R_RBRACKET
+    #                | PINGDOWN    L_RBRACKET variable R_RBRACKET
+    #                | PINGRIGHT   L_RBRACKET variable R_RBRACKET
+    #                | PINGLEFT    L_RBRACKET variable R_RBRACKET
+    #                | VISION      L_RBRACKET variable R_RBRACKET
+    #                | VOICE       L_RBRACKET expression R_RBRACKET"""
+    #     p[0] = Node(t='command', val=p[1], ch=p[3], no=p.lineno(1), pos=p.lexpos(1))
 
     def p_procedure(self, p):
         """procedure : PROC VARIABLE L_QBRACKET parameters R_QBRACKET statements_group"""
@@ -189,10 +187,10 @@ class Parser(object):
                               | part_expression STAR    part_expression   %prec STAR
                               | part_expression SLASH   part_expression   %prec SLASH
                               | part_expression CARET   part_expression   %prec CARET
-                              | part_expression GREATER part_expression   %prec GREATER
-                              | part_expression LESS    part_expression   %prec LESS
+                              | part_expression GT part_expression   %prec GT
+                              | part_expression LT    part_expression   %prec LT
                               | part_expression EQ      part_expression   %prec EQ
-                              | part_expression NOTEQ   part_expression   %prec NOTEQ
+                              | part_expression NE   part_expression   %prec NE
                               | MINUS expression %prec UMINUS"""
         if len(p) == 3:
             p[0]=Node(t='unary_expression', val=p[1], ch=p[2], no=p.lineno(1), pos=p.lexpos(1))
@@ -322,11 +320,17 @@ if __name__ == '__main__':
     data5 = f.read()
     f.close()
 
+    f = open("tests/bubble.txt")
+    data6 = f.read()
+    f.close()
+
+    f = open("tests/just_test")
+    data7 = f.read()
+    f.close()
+
     parser = Parser()
-    tree, fl = parser.parse(data5)
+    tree, fl = parser.parse(data6)
     print('Code tree: ')
     tree.print()
     print('Procedures: ')
     print(parser.get_proc())
-    print('Records: ')
-    print(parser.get_recs())
