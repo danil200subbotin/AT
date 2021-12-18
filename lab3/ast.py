@@ -1,17 +1,18 @@
 class Node(object):
     # object constructor
-    def __init__(self, t='const', val=None,  ch=[], no=None, pos=None):
-        self.type = t
-        self.value = val
-        self.child = ch
-        self.lineno = no
-        self.lexpos = pos
+    def __init__(self, type_='const', value_=None, child_=[], line_number_=None, position_=None):
+        self.type = type_
+        self.value = value_
+        self.child = child_
+        self.lineno = line_number_
+        self.lexpos = position_
 
     def __repr__(self):
         return f'{self.type} {self.value}'
 
     def print(self, level=0):
         if self is None:
+            print("-----------------WHAT?----------------")
             return
         print(' | ' * level, self)
         if isinstance(self.child, list):

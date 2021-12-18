@@ -33,13 +33,13 @@ class Lexer(object):
     def __init__(self):
         self.lexer = lex.lex(module=self)
 
-    tokens = list(reserved.values()) + ['DECIMAL', 'VARIABLE',
+    tokens = list(reserved.values()) + ['DECIMAL', 'NAME',
               'ASSIGNMENT', 'PLUS', 'MINUS',
               'STAR', 'SLASH', 'CARET',
               'LT', 'GT', 'EQ', 'NE',
-              'R_RBRACKET', 'L_RBRACKET',
-              'R_QBRACKET', 'L_QBRACKET',
-              'R_FBRACKET', 'L_FBRACKET',
+              'R_RPAREN', 'L_RPAREN',
+              'R_QPAREN', 'L_QPAREN',
+              'R_FPAREN', 'L_FPAREN',
               'AMPERSAND', 'COMMA', 'DOT', 'TEXT', 'LINE']
 
     precedence = (
@@ -61,12 +61,12 @@ class Lexer(object):
     t_GT = r'\>'
     t_EQ = r'\?'
     t_NE = r'\!'
-    t_R_RBRACKET = r'\)'
-    t_L_RBRACKET = r'\('
-    t_R_QBRACKET = r'\]'
-    t_L_QBRACKET = r'\['
-    t_R_FBRACKET = r'\}'
-    t_L_FBRACKET = r'\{'
+    t_R_RPAREN = r'\)'
+    t_L_RPAREN = r'\('
+    t_R_QPAREN = r'\]'
+    t_L_QPAREN = r'\['
+    t_R_FPAREN = r'\}'
+    t_L_FPAREN = r'\{'
     t_AMPERSAND = r'\&'
     t_COMMA = r'\,'
     t_DOT = r'\.'
@@ -77,9 +77,9 @@ class Lexer(object):
         r'(/\*(.|\n)*?\*/)|(//.*)'
         pass
 
-    def t_VARIABLE(self, t):
+    def t_NAME(self, t):
         r'[a-zA-Z_][a-zA-Z_0-9]*'
-        t.type = reserved.get(t.value, 'VARIABLE')
+        t.type = reserved.get(t.value, 'NAME')
         return t
 
     def t_TEXT(self, t):
