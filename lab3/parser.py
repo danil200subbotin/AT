@@ -3,7 +3,7 @@ from ply.lex import LexError
 import sys
 from typing import List, Dict
 from lexer import Lexer
-from ast import Node
+from my_ast import Node
 
 
 class Parser(object):
@@ -17,21 +17,23 @@ class Parser(object):
         self.parser = yacc.yacc(module=self)
         self._procedures: Dict[str, Node] = dict()
         self._records: Dict[str, Node] = dict()
-        # в словаре преобразований ключ будет представлять собой конкантенацию преобразуемых типов
         self._conversions: Dict[str, Node] = dict()
 
     def parse(self, s) -> List:
         try:
             res = self.parser.parse(s)
-            return res,  self.correct
+            return [res,  self.correct]
         except LexError:
             sys.stderr.write(f'Illegal token {s}\n')
 
-    def get_proc(self):
+    def get_procedures(self):
         return self._procedures
 
-    def get_recs(self):
+    def get_records(self):
         return self._records
+
+    def get_conversations(self):
+        return self._conversions
 
     @staticmethod
     def p_program(p):
@@ -58,6 +60,25 @@ class Parser(object):
                      | while LINE
                      | command LINE
                      | empty LINE"""
+        p[0] = p[1]
+
+
+    @staticmethod
+    def p_name(p):
+        """name : NAME indexing
+                | NAME"""
+        match len(p):
+            case 3:
+                p[0] = Node(type_='component_of', value_=p[1], child_=p[2], line_number_=p.lineno(1), position_=p.lexpos(1))
+            case _:
+                p[0] = Node(type_='name', value_=p[1])
+
+    @staticmethod
+    def p_type(p):
+        """type : NUMERIC
+                | STRING
+                | LOGIC
+                | NAME"""
         p[0] = p[1]
 
     @staticmethod
@@ -113,10 +134,11 @@ class Parser(object):
     def p_conversions(p):
         """conversions :  conversions conversion
                        | conversion"""
-        if len(p) == 3:
-            p[0] = Node(type_='conversions', child_=[p[1], p[2]])
-        else:
-            p[0] = Node(type_='conversions', child_=p[1])
+        match len(p):
+            case 3:
+                p[0] = Node(type_='conversions', child_=[p[1], p[2]])
+            case _:
+                p[0] = Node(type_='conversions', child_=[p[1]])
 
     @staticmethod
     def p_conversion(p):
@@ -129,13 +151,6 @@ class Parser(object):
         """empty : """
         pass
 
-    @staticmethod
-    def p_type(p):
-        """type : NUMERIC
-                | STRING
-                | LOGIC
-                | NAME"""
-        p[0] = p[1]
 
     @staticmethod
     def p_expression(p):
@@ -148,19 +163,24 @@ class Parser(object):
     def p_names(p):
         """names :  expression
                  |  expression COMMA names """
-        if len(p) == 2:
-            p[0] = Node(type_='names', child_=p[1])
-        else:
-            p[0] = Node(type_='names', child_=[p[1], p[3]])
+        match len(p):
+            case 2:
+                p[0] = Node(type_='names', child_=p[1])
+            case _:
+                p[0] = Node(type_='names', child_=[p[1], p[3]])
 
-    @staticmethod
-    def p_name(p):
-        """name : NAME indexing
-                | NAME"""
-        if len(p) == 3:
-            p[0] = Node(type_='component_of', value_=p[1], child_=p[2], line_number_=p.lineno(1), position_=p.lexpos(1))
-        else:
-            p[0] = Node(type_='name', value_=p[1])
+
+    # @staticmethod
+    # def p_name(p):
+    #     """name : NAME indexing
+    #             | NAME"""
+    #     match len(p):
+    #         case 3:
+    #             p[0] = Node(type_='component_of', value_=p[1], child_=p[2],
+    #             line_number_=p.lineno(1), position_=p.lexpos(1))
+    #         case _:
+    #             p[0] = Node(type_='name', value_=p[1])
+
 
     @staticmethod
     def p_indexing(p):
@@ -195,12 +215,12 @@ class Parser(object):
                               | part_expression EQ      part_expression   %prec EQ
                               | part_expression NE   part_expression   %prec NE
                               | MINUS expression %prec UMINUS"""
-        if len(p) == 4:
-            p[0] = Node(type_='binary_expression', value_=p[2], child_=[p[1], p[3]], line_number_=p.lineno(1),
+        match len(p):
+            case 4:
+                p[0] = Node(type_='binary_expression', value_=p[2], child_=[p[1], p[3]], line_number_=p.lineno(1),
                         position_=p.lexpos(1))
-
-        else:
-            p[0] = Node(type_='unary_expression', value_=p[1], child_=p[2], line_number_=p.lineno(1),
+            case _:
+                p[0] = Node(type_='unary_expression', value_=p[1], child_=p[2], line_number_=p.lineno(1),
                         position_=p.lexpos(1))
 
     @staticmethod
@@ -224,37 +244,41 @@ class Parser(object):
     def p_parameters(p):
         """parameters : parameter COMMA parameters
                       | parameter"""
-        if len(p) == 2:
-            p[0] = Node(type_='parameters', child_=[p[1]])
-        else:
-            p[0] = Node(type_='parameters', child_=[p[1], p[3]])
+        match len(p):
+            case 2:
+                p[0] = Node(type_='parameters', child_=[p[1]])
+            case _:
+                p[0] = Node(type_='parameters', child_=[p[1], p[3]])
 
     @staticmethod
     def p_parameter(p):
         """parameter : declaration AMPERSAND
                      | declaration"""
-        if len(p) == 2:
-            p[0] = Node(type_='parameter', value_=p[1])
-        else:
-            p[0] = Node(type_='ref_parameter', value_=p[1])
+        match len(p):
+            case 2:
+                p[0] = Node(type_='parameter', value_=p[1])
+            case _:
+                p[0] = Node(type_='ref_parameter', value_=p[1])
 
     @staticmethod
     def p_statements_group(p):
         """statements_group : BLOCK internal_statements UNBLOCK
                             | internal_statement"""
-        if len(p) == 4:
-            p[0] = p[2]
-        else:
-            p[0] = p[1]
+        match len(p):
+            case 4:
+                p[0] = p[2]
+            case _:
+                p[0] = p[1]
 
     @staticmethod
     def p_internal_statements(p):
         """internal_statements :  internal_statement internal_statements
                             | internal_statement"""
-        if len(p) == 3:
-            p[0] = Node(type_='statements', child_=[p[1], p[2]])
-        else:
-            p[0] = Node(type_='statements', child_=[p[1]])
+        match len(p):
+            case 3:
+                p[0] = Node(type_='statements', child_=[p[1], p[2]])
+            case _:
+                p[0] = Node(type_='statements', child_=[p[1]])
 
     @staticmethod
     def p_internal_statement(p):
@@ -293,7 +317,7 @@ if __name__ == '__main__':
     data4 = f.read()
     f.close()
 
-    f = open("tests/fibonacci_recursion")
+    f = open("tests/fibonacci_recursion.txt")
     data5 = f.read()
     f.close()
 
@@ -306,8 +330,8 @@ if __name__ == '__main__':
     f.close()
 
     parser = Parser()
-    tree, fl = parser.parse(data7)
+    tree, fl = parser.parse(data4)
     print('Code tree: ')
     tree.print()
     print('Procedures: ')
-    print(parser.get_proc())
+    print(parser.get_procedures())
