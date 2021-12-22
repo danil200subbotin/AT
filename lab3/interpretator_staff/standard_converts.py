@@ -15,7 +15,7 @@ class Var:
                 case "TRUE":
                     self.value = True
                 case _:
-                    print("strange logic moment")
+       #             print("strange logic moment")
                     self.value = value_
         else:
             self.value = value_

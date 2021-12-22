@@ -21,7 +21,8 @@ class Exit(Exception):
 
 class Interpreter:
 
-    def __init__(self, _parser=Parser()):
+    def __init__(self, _parser=Parser(), window=None):
+        self.window = window
         self.program = None
         self.standard_conversions = Conversion()
         self.standard_operations = Operations()
@@ -61,7 +62,11 @@ class Interpreter:
         match node.type:
 
             case 'program':
-                self.interpreter_node(node.child)
+                try:
+                    self.interpreter_node(node.child)
+                except Exit:
+                    print("Все закрыл!!!!!! Получил нужный результат")
+                    pass
 
             case 'statements':
                 for child in node.child:
@@ -84,8 +89,8 @@ class Interpreter:
                             array_index = (self.get_variable(array_index)).value
                         result = list()
                         if type_ in self.records:
-                            raise Exit
                             elem = [type_, copy.deepcopy(self.records[type_][0])]
+                            raise Exit
                         else:
                             elem = Var(type_)
                         for i in range(array_index):
@@ -194,9 +199,9 @@ class Interpreter:
                 while self.standard_conversions.converting(self.interpreter_node(node.child['condition']), 'LOGIC').value:
                     self.interpreter_node(node.child['body'])
 
-            # for ROBOT-----------------------------------------------------------------------------------------
             case 'command':
                 name = node.child.value
+                expression = None
                 if name not in self.notion_table[self.namespace_id].keys():
                     sys.stderr.write(f'Undeclared variable2\n')
                 else:
@@ -271,7 +276,7 @@ class Interpreter:
                 else:
                     sys.stderr.write(f'UNEXPECTED ERROR')
 
-            # EXPRESSIONS------------------------------------------------------------------------------------------------------
+
             case 'unary_expression':
                 expression = self.interpreter_node(node.child)
                 if expression.value is None:
@@ -286,6 +291,7 @@ class Interpreter:
                         return Var()
 
             case 'binary_expression':
+                result = None
                 exp1 = self.interpreter_node(node.child[0])
                 exp2 = self.interpreter_node(node.child[1])
                 match node.value:
@@ -380,15 +386,7 @@ class Interpreter:
         else:
             variable.value = None
 
-
-
-    # for while
-    def op_while(self, node):
-        while self.standard_conversions.converting(self.interpreter_node(node.child['condition']), 'LOGIC').value:
-            self.interpreter_node(node.child['body'])
-
-    # for declaration
-    def declare_variable(self, node, _type):            #---------------------------------------------------------
+    def declare_variable(self, node, _type):            # ---------------------------------------------------------
         if node.type == 'name':
             if (node.value in self.records.keys()) or (node.value in self.procedures.keys()) or (
                     node.value in self.notion_table[self.namespace_id].keys()):
@@ -398,10 +396,11 @@ class Interpreter:
                 if _type in ['NUMERIC', 'LOGIC', 'STRING']:
                     self.notion_table[self.namespace_id][_value] = Var(_type, None)
                 elif _type in self.records.keys():
-                    self.notion_table[self.namespace_id][_value] = [_type, copy.deepcopy(self.records[_type][0])]
+                    print(_type, copy.deepcopy(self.records[_type].child['parameters']))
+                    self.notion_table[self.namespace_id][_value] = [_type, copy.deepcopy(self.records[_type].child['parameters'])]
             return
 
-    def declare_array(self, _name, _type, _value):          #---------------------------------------------------------
+    def declare_array(self, _name, _type, _value):          # ---------------------------------------------------------
         if (_name in self.records.keys()) or (_name in self.procedures.keys()) or (
                 _name in self.notion_table[self.namespace_id].keys()):
             sys.stderr.write(f'The name is already taken\n')
@@ -409,7 +408,7 @@ class Interpreter:
             self.notion_table[self.namespace_id][_name] = [_type, _value]
         return
 
-    def get_value(self, node, sc=None):                 #---------------------------------------------------------
+    def get_value(self, node, sc=None):                 # ---------------------------------------------------------
         if sc is None:
             sc = self.namespace_id
         if node.type == 'name':
@@ -420,7 +419,7 @@ class Interpreter:
             sys.stderr.write(f'Illegal value\n')
         return Var()
 
-    def get_variable(self, name, sc=None):                      #---------------------------------------------------------
+    def get_variable(self, name, sc=None):                      # ---------------------------------------------------------
         if sc is None:
             sc = self.namespace_id
         if name in self.notion_table[sc].keys():
@@ -434,7 +433,7 @@ class Interpreter:
             sys.stderr.write(f' Namespace {sc}: Undeclared variable3\n')
         return Var()
 
-    def get_component(self, node, sc=None):             #---------------------------------------------------------
+    def get_component(self, node, sc=None):             # ---------------------------------------------------------
         if sc is None:
             sc = self.namespace_id
         if node.type == 'component_of':
@@ -492,7 +491,7 @@ class Interpreter:
             sys.stderr.write(f'Illegal value\n')
         return Var()
 
-    def run_procedure(self, node):                          #---------------------------------------------------------
+    def run_procedure(self, node):                          # ---------------------------------------------------------
         self.notion_table.append(dict())
         self.namespace_id += 1
         data = node.child.child
@@ -558,7 +557,7 @@ class Interpreter:
         self.namespace_id -= 1
         return
 
-    def add_new_record(self, node):                         #---------------------------------------------------------
+    def add_new_record(self, node):
         leftArgument = ""
         rightArgument = ""
         recordType = node.value
@@ -611,21 +610,9 @@ class Interpreter:
 
             self.custom_conversions = (self.custom_conversions | res_convs)
         return Node(type_='record', value_=node.value, child_={'parameters': res_params, 'conversions': res_convs})
-  #      return res_params, res_convs
+  # return res_params, res_convs
 
-    def create_robot(self, file_name):
-        # MAP FILE DESCRIPTION
-        # < start coordinate >
-        # < field size >
-        # < FIELD >
-        # 'X' - wall
-        # 'E' - exit
-        # ' ' - empty
-        # < /FIELD >
-        # < PASSWORDS >
-        # < password coordinate > < exit coordinate > < password >
-        # < /PASSWORDS >
-
+    def read_map_document(self, file_name):
         fl = open(file_name)
         _text = fl.readlines()
         robot_position = _text.pop(0).rstrip().split(" ")
@@ -649,17 +636,16 @@ class Interpreter:
             pos += 1
         while len(_text) > 0:
             password_info = _text.pop(0).rstrip().split(" ")
-            # PASSWORD
             passw = password_info[4]
-            # WALL
+
             wall_x = int(password_info[0])
             wall_y = int(password_info[1])
             _map[wall_x][wall_y].passwords.append(passw)
-            # EXIT
+
             exit_x = int(password_info[2])
             exit_y = int(password_info[3])
             _map[exit_x][exit_y].passwords.append(passw)
-        self.robot = rb.Robot(_x=x, _y=y, _map=_map)
+        self.robot = rb.Robot(_x=x, _y=y, _map=_map, window=self.window)
 
 
 

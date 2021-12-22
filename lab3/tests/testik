@@ -80,5 +80,4 @@ PROC ampersand2 [NUMERIC ccc&] BLOCK
 ampersand1(aaa)
 ampersand2(bbb)
 
-rec1 = rec2
 
