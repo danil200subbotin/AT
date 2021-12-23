@@ -14,6 +14,9 @@ menu_functions = ['1. Пузырьковая сортировка',
                   '4. Логические тесты',
                   '5. Массивные тесты',
                   '6. Тестик с заведомыми ошибками',
+                  '7. Тест с ошибками для парсера1',
+                  '8. Тест с ошибками для парсера2',
+                  '9. Тест с ошибками для парсера3',
                   '0. Exit']
 
 functions_set = ['',
@@ -22,7 +25,10 @@ functions_set = ['',
                  'tests/fibonacci_recursion.txt',
                  'tests/logic_test',
                  'tests/array_test',
-                 'tests/error_test']
+                 'tests/error_test',
+                 'tests/parser_errors_test1',
+                 'tests/parser_errors_test2',
+                 'tests/parser_errors_test3']
 
 menu_robot = ['1. Небольшая карта',
               '2. Большая карта',

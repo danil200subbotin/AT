@@ -290,17 +290,24 @@ class Parser(object):
                            | empty LINE"""
         p[0] = p[1]
 
-
-
     def p_error(self, p):
         try:
-            sys.stderr.write(f'Syntax error at {p.lineno} line\n')
+            sys.stderr.write(f'Синтаксическая ошибка в строке [{p.lineno}]: ')
+            match p.type:
+                case "ASSIGNMENT":
+                    sys.stderr.write(f'тут нельзя выполнять присваивание\n')
+                case "DECIMAL":
+                    sys.stderr.write(f'не ожидалось встретить тут число\n')
+                case "NAME":
+                    sys.stderr.write(f'не ожидалось встретить тут имя\n')
         except:
             sys.stderr.write(f'Syntax error\n')
         self.correct = False
 
 
-
+class handleError:
+    def __init__(self, number=0):
+        self.number = number
 
 if __name__ == '__main__':
     data1 = '''NUMERIC myNum
@@ -335,3 +342,5 @@ if __name__ == '__main__':
     tree.print()
     print('Procedures: ')
     print(parser.get_procedures())
+
+

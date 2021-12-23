@@ -1,0 +1,200 @@
+import random
+import math
+
+class rect:
+    '''класс прямоугольника'''
+
+    def __init__(self, x, y, w, h):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+
+    def is_cross(self, b):
+        '''проверяет, пересекаются ли заданные прямоугольники'''
+        return self.x + self.w > b.x and self.x < b.x + b.w and self.y + self.h > b.y and self.y < b.y + b.h
+
+    def set_pos(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __repr__(self):
+        return "rect{x=%f;y=%f;w=%f;h=%f}" % (self.x, self.y, self.w, self.h)
+
+    def __eq__(self, b) -> bool:
+        return type(b) is type(self) and self.x == b.x and self.y == b.y and self.h == b.h and self.w == b.w
+    def __hash__(self):
+        return hash((self.x, self.y, self.w, self.h, self.__class__))
+
+MIN_SCALE = 1 / 1
+MAX_SCALE = 2 / 1
+
+def in_scale(a, b):
+    '''проверяем, что прямоугольник не слишком вытянутый'''
+    s =  max(a, b) / min(a, b)
+    return s >= MIN_SCALE and s <= MAX_SCALE
+
+def rect_from_square(s):
+    '''возвращает случайный прямоугольник со сторонами не меньше полуметра и с указанной площадью'''
+    if s < 0.25:
+        return None
+    w = random.uniform(0.5, s/0.5)
+    h = s / w
+    while not in_scale(w, h):
+        w = random.uniform(0.5, s/0.5)
+        h = s / w
+    return rect(0, 0, w, h)
+
+def rects_from_square(n, ts, s):
+    '''создает n прямоугольников суммарной площадью ts и минимальной площадью s'''
+    ret = []
+    if s*n > ts:
+        return ret
+    cur = 0
+    for i in range(0, n-1):
+        max = ts - s * (n-i-1) - cur
+        cs = random.uniform(s, max)
+        cur += cs
+        ret.append(rect_from_square(cs))
+
+    ret.append(rect_from_square(ts-cur))
+    return ret
+
+def place_rect(ra, rb, door):
+    d = random.randint(0, 3)
+    if d == 0:
+        rb.y = ra.y-rb.h
+    elif d == 1:
+        rb.x = ra.x+ra.w
+    elif d == 2:
+        rb.y = ra.y+ra.h
+    elif d == 3:
+        rb.x = ra.x-rb.w
+    if d == 0 or d == 2:
+        rb.x = random.uniform(ra.x-rb.w+door, ra.x+ra.w-door)
+    else:
+        rb.y = random.uniform(ra.y-rb.h+door, ra.y+ra.h-door)
+
+def place_rects(rects, door):
+    if len(rects) < 2:
+        return
+    for i in range(1, len(rects)):
+        suc = True
+        while suc:
+            r = rects[random.randint(0, i-1)]
+            place_rect(r, rects[i], door)
+            suc = False
+            for j in range(0, i):
+                if rects[i].is_cross(rects[j]):
+                    suc = True
+                    break
+
+
+
+
+import bpy
+
+bl_info = {
+    "name": "Генератор планировок",
+    "category": "Mesh",
+}
+
+
+def gen_p(off, x, y, w, h, d):
+    '''создает параллелепипед с указанными характеристиками'''
+    ret_v = [(x, y, 0), (x+w, y, 0), (x+w, y+h, 0), (x, y+h, 0),
+                (x, y, d), (x+w, y, d), (x+w, y+h, d), (x, y+h, d)]
+    ret_f = [[off, off+1, off+5, off+4], [off+2, off+3, off+7, off+6],
+            [off+1, off+2, off+6, off+5], [off, off+3, off+7, off+4],
+            [off+4, off+5, off+6, off+7], [off, off+1, off+2, off+3]]
+    return ret_v, ret_f
+
+class GenerateKvartira(bpy.types.Operator):
+    bl_idname = "mesh.saturday_flat_plan"
+    bl_label = "Создать квартиру"
+
+    seed = bpy.props.IntProperty(name= "Зерно генератора", default= 0)
+    total_s = bpy.props.FloatProperty(name= "Общая площадь", default= 100, min = 20)
+    min_s = bpy.props.FloatProperty(name= "Минимальная площадь комнаты", default= 12, min = 0.25)
+    high = bpy.props.FloatProperty(name= "Высота стен", default= 2, min = 1.5, max = 4)
+    wall_w = bpy.props.FloatProperty(name= "Толщина", default= 0.3, min = 0.01, max = 0.5)
+    count = bpy.props.IntProperty(name= "Число комнат", default= 4, min = 1)
+
+    def execute(self, context):
+
+        random.seed(self.seed)
+
+        h = self.high
+        ww = self.wall_w
+        ww2 = ww/2
+
+        if self.min_s * self.count > self.total_s:
+            self.report({'ERROR'}, "Сумма минимальных площадей комнат больше общей площади квартиры")
+            return {'FINISHED'}
+
+        rects = rects_from_square(self.count, self.total_s, self.min_s)
+
+        place_rects(rects, 0.5 + ww)
+
+        vertices = []
+        faces = []
+        i = 0
+        # генерируем плоский пол
+        for r in rects:
+            vertices.extend([(r.x+ww2, r.y+ww2, 0), (r.x+r.w-ww2, r.y+ww2, 0),
+                                (r.x+r.w-ww2, r.y+r.h-ww2, 0), (r.x+ww2, r.y+r.h-ww2, 0)])
+            faces.append([j for j in range(i, i+4)])
+            i+=4
+
+        off = len(vertices)
+        i = 0
+        #добавляем стены
+        for r in rects:
+            vr, fc = gen_p(off+i, r.x-ww2, r.y-ww2, r.w+ww, ww, h)
+            vertices.extend(vr)
+            faces.extend(fc)
+            i += 8
+
+            vr, fc = gen_p(off+i, r.x-ww2, r.y-ww2+r.h, r.w+ww, ww, h)
+            vertices.extend(vr)
+            faces.extend(fc)
+            i += 8
+
+            vr, fc = gen_p(off+i, r.x-ww2, r.y-ww2, ww, r.h+ww, h)
+            vertices.extend(vr)
+            faces.extend(fc)
+            i += 8
+
+            vr, fc = gen_p(off+i, r.x-ww2 + r.w, r.y-ww2, ww, r.h+ww, h)
+            vertices.extend(vr)
+            faces.extend(fc)
+            i += 8
+
+
+        collection = bpy.data.collections[0]
+
+        new_mesh = bpy.data.meshes.new('flat')
+        new_mesh.from_pydata(vertices, [], faces)
+        new_mesh.update()
+        new_object = bpy.data.objects.new('Квартира', new_mesh)
+        collection.objects.link(new_object)
+
+        return {'FINISHED'}			   # это даст Блендеру знать, что оператор завершился успешно
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+def menu_func(self, context):
+    self.layout.operator(GenerateKvartira.bl_idname, icon="UGLYPACKAGE")
+
+def register():
+    bpy.utils.register_class(GenerateKvartira)
+    bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
+
+def unregister():
+    bpy.utils.unregister_class(GenerateKvartira)
+    bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
+
+
+if __name__ == "__main__":
+    register()

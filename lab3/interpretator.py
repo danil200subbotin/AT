@@ -17,8 +17,6 @@ class Exit(Exception):
     pass
 
 
-# Item of symbol table
-
 class Interpreter:
 
     def __init__(self, _parser=Parser(), window=None):
@@ -495,6 +493,17 @@ class Interpreter:
         self.namespace_id += 1
         data = node.child.child
         params = self.procedures[node.value].child['parameters'].child
+        # добавляю новую проверку на тип
+        if isinstance(data, list):
+            pass
+        if isinstance(data, Node):
+            if not isinstance(self.notion_table[self.namespace_id - 1][data.value], list):
+                newType = self.notion_table[self.namespace_id - 1][data.value].type
+                paramType = params[0].value.value
+                if paramType != newType:
+                    sys.stderr.write(f'В процедуру {node.value} передали: {newType}, ожидалось:  {paramType}\n')
+                    raise Exit
+            # добавляю новую проверку на тип
         if debug:
             print('DATA: ', data)
             print('PAR: ', params)
@@ -507,8 +516,6 @@ class Interpreter:
             if isinstance(data, list):
                 if data[0]:
                     res = self.get_value(data[0], self.namespace_id - 1)
-                    if debug:
-                        print('GOT VAL', res)
                 name = [data[0].value]
                 if data[0].type == 'component_of':
                     indexing = data[0].child.value
@@ -547,11 +554,7 @@ class Interpreter:
                 else:
                     self.notion_table[self.namespace_id - 1][ref_arr[var][0]] = self.notion_table[self.namespace_id][
                         var]
-        if debug:
-            print(self.notion_table[self.namespace_id])
         self.interpreter_node(code)
-        if debug:
-            print(self.notion_table[self.namespace_id])
         self.notion_table.pop()
         self.namespace_id -= 1
         return

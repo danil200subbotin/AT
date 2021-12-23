@@ -1,0 +1,252 @@
+
+PROC check_around [LOGIC res&] BLOCK NUMERIC look
+    look = 0
+    PINGUP(look)
+    LOGIC flag
+    flag = look ! 0
+    res = -flag
+    {flag} BLOCK look = 0
+        PINGRIGHT(look)
+        flag = look ! 0
+        res = -flag
+        {flag} BLOCK look = 0
+            PINGDOWN(look)
+            flag = look ! 0
+            res = -flag
+            {flag} BLOCK look = 0
+                PINGLEFT(look)
+                flag = look ! 0
+                res = -flag
+                flag = FALSE
+            UNBLOCK
+            flag = FALSE
+        UNBLOCK
+        flag = FALSE
+    UNBLOCK
+UNBLOCK
+
+RECORD MEMORY DATA [NUMERIC employed, STRING page[10]]
+
+PROC try_pass [MEMORY a] BLOCK NUMERIC i
+    i = 0
+    {i < a[employed]} BLOCK VOICE(a[page][i])
+        i = i + 1
+    UNBLOCK
+UNBLOCK
+
+PROC write_pass [MEMORY a&, STRING buf[4]] BLOCK NUMERIC i
+    LOGIC work
+    LOGIC add
+    LOGIC check
+    NUMERIC j
+    j = 0
+    {j < 4} BLOCK add = TRUE
+        work = buf[j] ! UNDEF
+        check = a[employed] ? 10
+        {check} BLOCK work = FALSE
+            j = 42
+            check = FALSE
+            add = FALSE
+        UNBLOCK
+        {work} BLOCK i = 0
+            {i < a[employed]} BLOCK check = a[page][i] ? buf[j]
+                {check} BLOCK add = FALSE
+                    check = FALSE
+                UNBLOCK
+                i = i + 1
+            UNBLOCK
+        i = a[employed]
+        {add} BLOCK a[page][i] = buf[j]
+            a[employed] = a[employed] + 1
+            add = FALSE
+        UNBLOCK
+        work = FALSE
+        UNBLOCK
+        j = j + 1
+    UNBLOCK
+UNBLOCK
+
+NUMERIC step
+NUMERIC check_1
+NUMERIC check_2
+NUMERIC side
+side = 1
+NUMERIC max
+max = 100
+
+LOGIC work
+work = TRUE
+LOGIC wall1
+LOGIC not_wall1
+LOGIC wall2
+LOGIC not_wall2
+LOGIC say
+say = FALSE
+
+STRING buf[4]
+
+MEMORY psw
+psw[employed] = 0
+{work} BLOCK step = 0
+    VISION(buf)
+    write_pass(psw, buf)
+    say = TRUE
+    check_around(say)
+    {say} BLOCK try_pass(psw)
+        say = FALSE
+    UNBLOCK
+    {side ? 0} BLOCK check_1 = UNDEF
+        check_2 = UNDEF
+        PINGRIGHT(check_1)
+        wall1 = check_1 ? 0
+        not_wall1 = - wall1
+        {wall1} BLOCK PINGUP(check_2)
+            wall2 = check_2 ? 0
+            not_wall2 = - wall2
+            {not_wall2} BLOCK MOVEUP(step)
+                VISION(buf)
+                write_pass(psw, buf)
+                say = TRUE
+                check_around(say)
+                {say} BLOCK try_pass(psw)
+                    say = FALSE
+                UNBLOCK
+                step = 1
+                not_wall2 = FALSE
+            UNBLOCK
+            {wall2} BLOCK side = 3
+                wall2 = FALSE
+            UNBLOCK
+            wall1 = FALSE
+        UNBLOCK
+        {not_wall1} BLOCK side = 1
+            MOVERIGHT(step)
+            VISION(buf)
+            write_pass(psw, buf)
+            say = TRUE
+    check_around(say)
+    {say} BLOCK try_pass(psw)
+        say = FALSE
+    UNBLOCK
+            step = 1
+            not_wall1 = FALSE
+        UNBLOCK
+    UNBLOCK
+
+    {side ? 1} BLOCK check_1 = UNDEF
+        check_2 = UNDEF
+        PINGDOWN(check_1)
+        wall1 = check_1 ? 0
+        not_wall1 = - wall1
+        {wall1} BLOCK PINGRIGHT(check_2)
+            wall2 = check_2 ? 0
+            not_wall2 = - wall2
+            {not_wall2} BLOCK MOVERIGHT(step)
+                VISION(buf)
+                write_pass(psw, buf)
+                say = TRUE
+    check_around(say)
+    {say} BLOCK try_pass(psw)
+        say = FALSE
+    UNBLOCK
+                step = 1
+                not_wall2 = FALSE
+            UNBLOCK
+            {wall2} BLOCK side = 0
+                wall2 = FALSE
+            UNBLOCK
+            wall1 = FALSE
+        UNBLOCK
+        {not_wall1} BLOCK side = 2
+            MOVEDOWN(step)
+            VISION(buf)
+                write_pass(psw, buf)
+                say = TRUE
+    check_around(say)
+    {say} BLOCK try_pass(psw)
+        say = FALSE
+    UNBLOCK
+            step = 1
+            not_wall1 = FALSE
+        UNBLOCK
+    UNBLOCK
+
+    {side ? 2} BLOCK check_1 = UNDEF
+        check_2 = UNDEF
+        PINGLEFT(check_1)
+        wall1 = check_1 ? 0
+        not_wall1 = - wall1
+        {wall1} BLOCK PINGDOWN(check_2)
+            wall2 = check_2 ? 0
+            not_wall2 = - wall2
+            {not_wall2} BLOCK MOVEDOWN(step)
+                VISION(buf)
+                write_pass(psw, buf)
+                say = TRUE
+    check_around(say)
+    {say} BLOCK try_pass(psw)
+        say = FALSE
+    UNBLOCK
+                step = 1
+                not_wall2 = FALSE
+            UNBLOCK
+            {wall2} BLOCK side = 1
+                wall2 = FALSE
+            UNBLOCK
+            wall1 = FALSE
+        UNBLOCK
+        {not_wall1} BLOCK side = 3
+            MOVELEFT(step)
+            VISION(buf)
+            write_pass(psw, buf)
+            say = TRUE
+    check_around(say)
+    {say} BLOCK try_pass(psw)
+        say = FALSE
+    UNBLOCK
+            step = 1
+            not_wall1 = FALSE
+        UNBLOCK
+    UNBLOCK
+
+    {side ? 3} BLOCK check_1 = UNDEF
+        check_2 = UNDEF
+        PINGUP(check_1)
+        wall1 = check_1 ? 0
+        not_wall1 = - wall1
+        {wall1} BLOCK PINGLEFT(check_2)
+            wall2 = check_2 ? 0
+            not_wall2 = - wall2
+            {not_wall2} BLOCK MOVELEFT(step)
+                VISION(buf)
+                write_pass(psw, buf)
+                say = TRUE
+    check_around(say)
+    {say} BLOCK try_pass(psw)
+        say = FALSE
+    UNBLOCK
+                step = 1
+                not_wall2 = FALSE
+            UNBLOCK
+            {wall2} BLOCK side = 2
+                wall2 = FALSE
+            UNBLOCK
+            wall1 = FALSE
+        UNBLOCK
+        {not_wall1} BLOCK side = 0
+            MOVEUP(step)
+            VISION(buf)
+            write_pass(psw, buf)
+            say = TRUE
+            check_around(say)
+            {say} BLOCK try_pass(psw)
+                say = FALSE
+            UNBLOCK
+            step = 1
+            not_wall1 = FALSE
+        UNBLOCK
+    UNBLOCK
+
+    max = max -1
+    work = max ! 0
+UNBLOCK

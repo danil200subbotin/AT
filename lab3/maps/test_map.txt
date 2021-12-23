@@ -1,0 +1,6 @@
+1 0
+3 7
+XX X XX
+      X
+ XXX EX
+1 6 2 5 MEPhI

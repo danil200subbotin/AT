@@ -1,0 +1,79 @@
+a = 5 aa = 5
+NUMERIC aa
+NUMERIC ab
+NUMERIC ac
+NUMERIC ad
+LOGIC b
+LOGIC ba
+LOGIC bb
+LOGIC bc
+LOGIC bd
+STRING c
+STRING ca
+STRING cb
+STRING cc
+STRING cd
+
+ab = 6
+ac = 5
+ad = 7
+ba = TRUE
+bb = TRUE
+bc = FALSE
+bd = FALSE
+c = "123"
+
+a = b .+ 0
+
+LOGIC log[7]
+NUMERIC num[7]
+STRING str[7]
+
+log[0] = 0
+log[1] = 1
+log[2] = "TRUE"
+log[3] = "FALSE"
+log[4] = TRUE
+log[5] = FALSE
+
+num[0] = 1
+num[1] = 0
+num[2] = "123412"
+num[3] = "dcywf6r2"
+num[4] = TRUE
+num[5] = FALSE
+str[0] = 1213
+str[1] = 0
+str[2] = "frwfrw"
+str[3] = TRUE
+str[4] = FALSE
+//CONVERSION TO type NAME
+
+aa = ab + ac
+
+PROC proc1 [NUMERIC nam] BLOCK
+    nam = TRUE
+    UNBLOCK
+
+PROC proc2 [LOGIC log] BLOCK
+    log = TRUE
+    UNBLOCK
+
+RECORD rec1 DATA [LOGIC one, LOGIC two] CONVERSION TO LOGIC proc1 CONVERSION FROM rec2 proc2
+RECORD rec2 DATA [LOGIC one, LOGIC two] CONVERSION FROM LOGIC proc1 CONVERSION TO asd proc2
+
+NUMERIC aaa
+NUMERIC bbb
+aaa = 0
+bbb = 0
+
+PROC ampersand1 [NUMERIC aaa] BLOCK
+    aaa = 100
+    UNBLOCK
+
+PROC ampersand2 [NUMERIC ccc&] BLOCK
+    ccc = 100
+    UNBLOCK
+
+ampersand1(aaa)
+ampersand2(bbb)

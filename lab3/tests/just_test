@@ -1,0 +1,22 @@
+NUMERIC robotPosition[2]
+robotPosition[0] = 0
+robotPosition[1] = 0
+NUMERIC map[5][5]
+map[0][0] = 1
+NUMERIC indicator
+NUMERIC x
+x = 0
+NUMERIC y
+y = 0
+LOGIC work
+work = TRUE
+indicator = x + y
+{ work } BLOCK
+    { indicator < 8 } BLOCK
+        map[x][y] = "1cfn4nhuv9fer"
+        { x ? 4} BLOCK
+            x = -1
+        UNBLOCK
+    UNBLOCK
+UNBLOCK
+
