@@ -85,7 +85,6 @@ class Interpreter:
                     if child_.type == 'component_of':
                         array_index = child_.child.value
                         if isinstance(array_index, str):
-                            # значение индекса массива, если в [] переменная
                             array_index = (self.get_variable(array_index)).value
                         result = list()
                         if type_ in self.records:
@@ -100,15 +99,15 @@ class Interpreter:
                     else:
                         self.declare_variable(child_, type_)
                 else:
-                    sys.stderr.write(f'Can\'t declare the variable: illegal type\n')
+                    sys.stderr.write(f'Невозможный тип для переменной или записи\n')
 
             case 'record_description':
                 recordName = node.value
                 if recordName in self.records.keys():
-                    sys.stderr.write(f'ERROR! Attempt to redeclare the record\n')
+                    sys.stderr.write(f'Попытка перезаписать запись\n')
                 elif (recordName in self.procedures.keys()) or (
                         recordName in self.notion_table[self.namespace_id].keys()):
-                    sys.stderr.write(f'Can\'t declare this record: name is taken\n')
+                    sys.stderr.write(f'Попытка назвать запись именем существующей процедуры\n')
                 else:
                     self.records[recordName] = self.add_new_record(self.parser.get_records()[recordName])
 
@@ -123,7 +122,7 @@ class Interpreter:
 
             case 'procedure_call':
                 if not (node.value in self.procedures.keys()):
-                    sys.stderr.write(f'Undeclared procedure\n')
+                    sys.stderr.write(f'Попытка вызвать необъявленную процедуру\n')
                 else:
                     self.run_procedure(node)
 
@@ -224,42 +223,42 @@ class Interpreter:
                     if expression.type == 'NUMERIC':
                         expression.value = self.robot.move_up(expression.value)
                     else:
-                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE')
+                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE\n')
                 elif node.value == 'MOVEDOWN':
                     if expression.type == 'NUMERIC':
                         expression.value = self.robot.move_down(expression.value)
                     else:
-                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE')
+                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE\n')
                 elif node.value == 'MOVERIGHT':
                     if expression.type == 'NUMERIC':
                         expression.value = self.robot.move_right(expression.value)
                     else:
-                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE')
+                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE\n')
                 elif node.value == 'MOVELEFT':
                     if expression.type == 'NUMERIC':
                         expression.value = self.robot.move_left(expression.value)
                     else:
-                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE')
+                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE\n')
                 elif node.value == 'PINGUP':
                     if expression.type == 'NUMERIC':
                         expression.value = self.robot.ping_up(expression.value)
                     else:
-                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE')
+                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE\n')
                 elif node.value == 'PINGDOWN':
                     if expression.type == 'NUMERIC':
                         expression.value = self.robot.ping_down(expression.value)
                     else:
-                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE')
+                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE\n')
                 elif node.value == 'PINGRIGHT':
                     if expression.type == 'NUMERIC':
                         expression.value = self.robot.ping_right(expression.value)
                     else:
-                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE')
+                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE\n')
                 elif node.value == 'PINGLEFT':
                     if expression.type == 'NUMERIC':
                         expression.value = self.robot.ping_left(expression.value)
                     else:
-                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE')
+                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE\n')
                 elif node.value == 'VISION':
                     if isinstance(expression, list):
                         if expression[0][1] == 'STRING':
@@ -267,12 +266,12 @@ class Interpreter:
                             for i in range(len(pasws)):
                                 expression[1][i].value = pasws[i]
                     else:
-                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE')
+                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE\n')
                 elif node.value == 'VOICE':
                     if expression.type == 'STRING':
                         self.robot.voice(expression.value)
                     else:
-                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE')
+                        sys.stderr.write(f'ILLEGAL COMMAND PARAMETER TYPE\n')
                 else:
                     sys.stderr.write(f'UNEXPECTED ERROR')
 
@@ -396,7 +395,7 @@ class Interpreter:
                 if _type in ['NUMERIC', 'LOGIC', 'STRING']:
                     self.notion_table[self.namespace_id][_value] = Var(_type, None)
                 elif _type in self.records.keys():
-                    print(_type, copy.deepcopy(self.records[_type].child['parameters']))
+                    # print(_type, copy.deepcopy(self.records[_type].child['parameters']))
                     self.notion_table[self.namespace_id][_value] = [_type, copy.deepcopy(self.records[_type].child['parameters'])]
             return
 
@@ -486,7 +485,7 @@ class Interpreter:
                     index = index.child
                 return res
             else:
-                sys.stderr.write(f'Undeclared variable4\n')
+                sys.stderr.write(f'Незадекларированный массив\n')
         else:
             sys.stderr.write(f'Illegal value\n')
         return Var()
@@ -594,7 +593,7 @@ class Interpreter:
                 case "TO":
                     rightArgument = p_convs.child[0].child[0]
                     leftArgument = recordType
-            print(p_convs.child[0])
+            # print(p_convs.child[0])
             res_convs[str(str(leftArgument) + "_to_" + str(rightArgument))] = p_convs.child[0]
         self.notion_table.pop()
         self.namespace_id -= 1
@@ -627,11 +626,11 @@ class Interpreter:
             _map[i] = [0] * int((map_size[1]))
         for i in range(int(map_size[0])):
             for j in range(int(map_size[1])):
-                _map[i][j] = rb.Cell("EMPTY")
+                _map[i][j] = rb.MapCell("EMPTY")
         pos = 0
         for i in range(int(map_size[0])):
             line = list(_text.pop(0).rstrip())
-            line = [rb.Cell(rb.types[i]) for i in line]
+            line = [rb.MapCell(rb.types[i]) for i in line]
             _map[pos] = line
             pos += 1
         while len(_text) > 0:

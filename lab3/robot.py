@@ -1,11 +1,5 @@
-from time import sleep
 import time
 import pygame.display
-
-
-def clear():
-    sleep(0.1)
-    print('\n'*10)
 
 
 types = {' ': 'FLOOR',
@@ -17,19 +11,13 @@ cells = {'FLOOR': 2,
          'EXIT': 0}
 
 
-class Cell:
+class MapCell:
     def __init__(self, _type):
         self.type = _type
-        if not _type == 'FLOOR':
+        if _type != 'FLOOR':
             self.passwords = []
         else:
             self.passwords = None
-
-    def __repr__(self):
-        if self.type != 'FLOOR':
-            return f"{self.type}: {self.passwords}"
-        else:
-            return self.type
 
 
 class Robot:
@@ -42,16 +30,16 @@ class Robot:
         self.walls = ['WALL', 'EXIT']
         self.found_exit = False
         self.wall = pygame.image.load('pictures/wall.png')
+        self.wall2 = pygame.image.load('pictures/wall2.png')
         self.r2d2 = pygame.image.load('pictures/r2d2-2.png')
-
-    def __repr__(self):
-        return f'Robot at [{self.x}, {self.y}]\nPasswords:\n{self.passwords}'
+        self.opened = pygame.image.load('pictures/opened.png')
+        self.closed = pygame.image.load('pictures/closed.png')
+        self.congratulations = pygame.image.load('pictures/congratulations.png')
 
     def show(self):
         width = height = 25
         size = 25
-        self.window
-        time.sleep(0.1)
+        time.sleep(0.05)
         pygame.display.update()
         self.window.fill((255, 255, 255))
         y = 0
@@ -61,61 +49,51 @@ class Robot:
                 # print(f'[{row},{cell}]')
                 if self.map[row][cell].type == 'FLOOR':
                     if (cell == self.y) and (row == self.x):
+                        # robot
                         self.window.blit(self.r2d2, (x * size, y * size))
-                        # print(f'[{x},{y}] = [red] ({width}, {height})\n')
-                        # print("@", end=' ')
                         x += 1
                     else:
+                        # road
                         pygame.draw.rect(self.window, (100, 100, 100), (x * size, y * size, width, height))
-                        # print(f'[{x},{y}] = [floor] ({width}, {height})\n')
-                        # print(" ", end=' ')
                         x += 1
                 elif self.map[row][cell].type == 'EXIT':
-                    pygame.draw.rect(self.window, (0, 0, 0), (x * size, y * size, width, height))
-                    # print(f'[{x},{y}] = [blue] ({width}, {height})\n')
-                    # print("E", end=' ')
+                    self.window.blit(self.closed, (x * size, y * size))
                     x += 1
                 else:
-                    self.window.blit(self.wall, (x * size, y * size))
-                    # print("X", end=' ')
+                    # wall
+                    if len(self.map[row][cell].passwords) > 0:
+                        self.window.blit(self.wall2, (x * size, y * size))
+                    else:
+                        self.window.blit(self.wall, (x * size, y * size))
                     x += 1
             y += 1
-        # print("645736589634895894678236756478326758463278065784032678567483026758642738657403267805674320")
         pygame.display.update()
 
     def move_up(self, steps):
         while steps and (self.x - 1 >= 0) and (self.map[self.x - 1][self.y].type == "FLOOR"):
             self.x -= 1
-            print(steps, '/\\')
             self.show()
-            clear()
             steps -= 1
         return steps
 
     def move_down(self, steps):
         while steps and (self.x + 1 < len(self.map)) and (self.map[self.x + 1][self.y].type == "FLOOR"):
             self.x += 1
-            print(steps, '\\/')
             self.show()
-            clear()
             steps -= 1
         return steps
 
     def move_right(self, steps):
         while steps and (self.y + 1 < len(self.map[self.x])) and (self.map[self.x][self.y + 1].type == "FLOOR"):
             self.y += 1
-            print(steps, '>')
             self.show()
-            clear()
             steps -= 1
         return steps
 
     def move_left(self, steps):
         while steps and (self.y - 1 >= 0) and (self.map[self.x][self.y - 1].type == "FLOOR"):
             self.y -= 1
-            print(steps, '<')
             self.show()
-            clear()
             steps -= 1
         return steps
 
@@ -129,7 +107,7 @@ class Robot:
                 dist += 1
         if _type is None:
             return dist
-        elif self.x - dist > 0 :
+        elif self.x - dist > 0:
             if (_type == cells['WALL']) and (self.map[self.x - dist][self.y].type == "WALL"):
                 return dist
             elif (_type == cells['EXIT']) and (self.map[self.x - dist-1][self.y].type == "EXIT"):
@@ -148,9 +126,9 @@ class Robot:
         if _type is None:
             return dist
         elif self.x + dist + 1 < len(self.map):
-            if (_type == cells['WALL']) and (self.map[self.x + dist +1][self.y].type == "WALL"):
+            if (_type == cells['WALL']) and (self.map[self.x + dist + 1][self.y].type == "WALL"):
                 return dist
-            elif (_type == cells['EXIT']) and (self.map[self.x + dist +1][self.y].type == "EXIT"):
+            elif (_type == cells['EXIT']) and (self.map[self.x + dist + 1][self.y].type == "EXIT"):
                 return dist
         return None
 
@@ -189,39 +167,47 @@ class Robot:
         return None
 
     def vision(self):
-        pasw = []
+        passwords = []
         if self.y > 0:
             if self.map[self.x][self.y - 1].type == 'WALL':
                 for psw in self.map[self.x][self.y - 1].passwords:
-                    pasw.append(psw)
+                    passwords.append(psw)
         if self.y + 1 < len(self.map[self.x]):
             if self.map[self.x][self.y + 1].type == 'WALL':
                 for psw in self.map[self.x][self.y + 1].passwords:
-                    pasw.append(psw)
+                    passwords.append(psw)
         if self.x > 0:
             if self.map[self.x - 1][self.y].type == 'WALL':
                 for psw in self.map[self.x - 1][self.y].passwords:
-                    pasw.append(psw)
+                    passwords.append(psw)
         if self.x + 1 < len(self.map):
             if self.map[self.x + 1][self.y].type == 'WALL':
                 for psw in self.map[self.x + 1][self.y].passwords:
-                    pasw.append(psw)
-        return pasw
+                    passwords.append(psw)
+        return passwords
 
-    def voice(self, pasw):
+    def voice(self, password):
         if self.map[self.x][self.y - 1].type == 'EXIT':
-            if pasw in self.map[self.x][self.y-1].passwords:
+            if password in self.map[self.x][self.y - 1].passwords:
                 self.found_exit = True
+                self.window.blit(self.opened, ((self.y - 1) * 25),  self.x * 25)
         if self.map[self.x][self.y + 1].type == 'EXIT':
-            if pasw in self.map[self.x][self.y + 1].passwords:
+            if password in self.map[self.x][self.y + 1].passwords:
                 self.found_exit = True
+                self.window.blit(self.opened, ((self.y + 1) * 25), self.x * 25)
         if self.map[self.x - 1][self.y].type == 'EXIT':
-            if pasw in self.map[self.x - 1][self.y].passwords:
+            if password in self.map[self.x - 1][self.y].passwords:
                 self.found_exit = True
+                self.window.blit(self.opened, (self.y * 25, (self.x - 1) * 25))
         if self.map[self.x + 1][self.y].type == 'EXIT':
-            if pasw in self.map[self.x + 1][self.y].passwords:
+            if password in self.map[self.x + 1][self.y].passwords:
                 self.found_exit = True
+                self.window.blit(self.opened, (self.y * 25, (self.x + 1) * 25))
         if self.found_exit:
-            print("***THE PASSWORD IS CORRECT, EXIT FOUND, CONGRATULATIONS***")
+            print(f'Докладываю!!! К выходу [{self.x},{self.y}] подобрал пароль: {password}')
+            pygame.display.update()
+            time.sleep(0.900)
+            self.window.blit(self.congratulations, (0, 0))
+            pygame.display.update()
         else:
-            print("*** YOU CAN'T LEAVE THE LABYRINTH YET ***")
+            print("Кажется, я тут застрял")

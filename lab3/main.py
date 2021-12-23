@@ -3,25 +3,33 @@ from interpretator_staff.standard_converts import Var
 import pygame
 
 
-
 menu_main = ['1. Тестирование функциями',
              '2. Погонять робота',
              '3. запасной пункт',
              '0. Завершенение работы']
+
 menu_functions = ['1. Пузырьковая сортировка',
                   '2. Нерекурсивный Фибоначи (with while)',
                   '3. Рекурсивный Фибоначи (with recursion)',
+                  '4. Логические тесты',
+                  '5. Массивные тесты',
+                  '6. Тестик с заведомыми ошибками',
                   '0. Exit']
+
 functions_set = ['',
-                 'tests/array_test',
+                 'tests/bubble.txt',
                  'tests/fibonacci.txt',
-                 'tests/fibonacci_recursion.txt']
+                 'tests/fibonacci_recursion.txt',
+                 'tests/logic_test',
+                 'tests/array_test',
+                 'tests/error_test']
+
 menu_robot = ['1. Небольшая карта',
               '2. Большая карта',
               '0. Exit']
 maps = ['',
-           'maps/test_map.txt',
-           'Maps/test_map2']
+        'maps/test_map.txt',
+        'Maps/test_map2']
 
 if __name__ == '__main__':
 
@@ -108,22 +116,6 @@ if __name__ == '__main__':
                         text = f.read()
                         f.close()
                         interpr.interpreter(text)
-                        for sym_table in interpr.notion_table:
-                            for keys, values in sym_table.items():
-                                if isinstance(values, Var):
-                                    if values.type == 'STRING':
-                                        print(values.type, keys, '= \'', values.value, '\'')
-                                    else:
-                                        print(values.type, keys, '=', values.value)
-                                elif isinstance(values[1], dict):
-                                    print(values[0], keys, '=\n', values[1])
-                                elif isinstance(values, list):
-                                    print(values[0][0], ' of ', values[0][1], keys, '=\n', values[1])
-                        print('Records:')
-                        for rec in interpr.records:
-                            print(f'"{rec}" : {interpr.records[rec]}')
-                        print('Procedures:')
-                        print(interpr.procedures)
                 pygame.quit()
             case _:
                 print('Incorrect input, try again')

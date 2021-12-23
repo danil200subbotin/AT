@@ -56,7 +56,7 @@ class Operations:
                     _val2.right = False
                 else:
                     no_error = False
-                    sys.stderr.write(f'Illegal operation: type conversion required\n')
+                    sys.stderr.write(f'Невозможно посчитать, будьте добры указать, куда мне приводить тип\n')
                 if no_error:
                     if res_type == "NUMERIC":
                         return Var('NUMERIC',
@@ -119,7 +119,7 @@ class Operations:
                     _val2.right = False
                 else:
                     no_error = False
-                    sys.stderr.write(f'Illegal operation: type conversion required\n')
+                    sys.stderr.write(f'Невозможно посчитать, будьте добры указать, куда мне приводить тип\n')
                 if no_error:
                     if res_type == "NUMERIC":
                         return Var('NUMERIC',
@@ -186,7 +186,7 @@ class Operations:
                     _val2.right = False
                 else:
                     no_error = False
-                    sys.stderr.write(f'Illegal operation: type conversion required\n')
+                    sys.stderr.write(f'Невозможно посчитать, будьте добры указать, куда мне приводить тип\n')
                 if no_error:
                     if res_type == "NUMERIC":
                         return Var('NUMERIC',
@@ -254,7 +254,7 @@ class Operations:
                     _val2.right = False
                 else:
                     no_error = False
-                    sys.stderr.write(f'Illegal operation: type conversion required\n')
+                    sys.stderr.write(f'Невозможно посчитать, будьте добры указать, куда мне приводить тип\n')
                 if no_error:
                     if res_type == "NUMERIC":
                         return Var('NUMERIC',
@@ -322,7 +322,7 @@ class Operations:
                     _val2.right = False
                 else:
                     no_error = False
-                    sys.stderr.write(f'Illegal operation: type conversion required\n')
+                    sys.stderr.write(f'Невозможно посчитать, будьте добры указать, куда мне приводить тип\n')
                 if no_error:
                     if res_type == "NUMERIC":
                         return Var('NUMERIC',
@@ -377,7 +377,7 @@ class Operations:
                     _val2.right = False
                 else:
                     no_error = False
-                    sys.stderr.write(f'Illegal operation: type conversion required\n')
+                    sys.stderr.write(f'Невозможно посчитать, будьте добры указать, куда мне приводить тип\n')
                 if no_error:
                     return Var('LOGIC',
                                standard_conversions.converting(_val1, res_type).value > standard_conversions.converting(_val2,
@@ -418,7 +418,7 @@ class Operations:
                     _val2.right = False
                 else:
                     no_error = False
-                    sys.stderr.write(f'Illegal operation: type conversion required\n')
+                    sys.stderr.write(f'Невозможно посчитать, будьте добры указать, куда мне приводить тип\n')
                 if no_error:
                     return Var('LOGIC',
                                standard_conversions.converting(_val1, res_type).value < standard_conversions.converting(_val2,
@@ -461,7 +461,7 @@ class Operations:
                     _val2.right = False
                 else:
                     no_error = False
-                    sys.stderr.write(f'Illegal operation: type conversion required\n')
+                    sys.stderr.write(f'Невозможно посчитать, будьте добры указать, куда мне приводить тип\n')
                 if no_error:
                     return Var('LOGIC',
                                standard_conversions.converting(_val1, res_type).value == standard_conversions.converting(_val2,
@@ -502,7 +502,7 @@ class Operations:
                     _val2.right = False
                 else:
                     no_error = False
-                    sys.stderr.write(f'Illegal operation: type conversion required\n')
+                    sys.stderr.write(f'Невозможно посчитать, будьте добры указать, куда мне приводить тип\n')
                 if no_error:
                     return Var('LOGIC',
                                standard_conversions.converting(_val1, res_type).value != standard_conversions.converting(_val2,
